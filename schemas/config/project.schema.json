@@ -1,0 +1,277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/config/project.schema.json",
+  "title": "Project configuration v0",
+  "description": "Per-project configuration written by the user. The user decides which model and endpoint every agent uses; Code Doctor never picks or swaps a model on its own. A fallback is used only if the user listed it for that agent. API keys never appear here: an endpoint names the environment variable that holds its key.",
+  "type": "object",
+  "required": ["cd_schema", "project", "endpoints", "agents"],
+  "properties": {
+    "cd_schema": { "const": "cd.config.project/0" },
+    "project": {
+      "type": "object",
+      "required": ["name", "root"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$" },
+        "root": { "description": "Absolute path of the project being examined. File tools cannot leave it.", "type": "string", "minLength": 1 },
+        "data_dir": { "description": "Where Code Doctor keeps its database, blobs and memory for this project. Default: ~/.codedoctor/projects/<name>.", "type": "string", "minLength": 1 },
+        "code_data_class": {
+          "description": "Sensitivity of this project's source code and command output. Decides which endpoints may see it (endpoint max_data_class). Default: internal.",
+          "$ref": "../common/defs.schema.json#/$defs/dataClass"
+        }
+      },
+      "additionalProperties": false
+    },
+    "endpoints": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/endpoint" }
+    },
+    "agents": {
+      "description": "At most 40 cluster members (2 heads + 19 worker/guardian pairs, checked by the program) plus up to 8 single agents.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 48,
+      "items": { "$ref": "#/$defs/agent" }
+    },
+    "cluster": {
+      "description": "User-controlled dual-head cluster; all heads, workers and guardians count toward max_agents (2 heads + up to 19 pairs = 40). Single agents are not counted.",
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "max_agents": { "type": "integer", "minimum": 4, "maximum": 40, "default": 40 },
+        "mode": { "description": "basic: single agent only; collab: the dispatch head runs one subtask at a time; advanced: worker/guardian pairs are woken in parallel on demand (docs/adr/0014).", "enum": ["basic", "dual", "small", "collab", "advanced"], "default": "advanced" },
+        "parallel": { "description": "Advanced mode: several pairs may work at once.", "type": "boolean", "default": true },
+        "squad": { "description": "Changing code with heads (write_files + test_command): a main pair fixes everything, alternate pairs fix copies, the other pairs write scenario tests; the system keeps the version that passes the most tests (docs/adr/0016 item 14).", "type": "boolean", "default": true },
+        "foresight": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "interval_s": { "type": "number", "minimum": 0.1, "default": 30 },
+            "max_steps_per_cycle": { "type": "integer", "minimum": 1, "maximum": 100, "default": 8 },
+            "max_tokens_per_cycle": { "type": "integer", "minimum": 1024, "default": 20000 },
+            "reserved_tokens_per_hour": { "type": "integer", "minimum": 1024, "default": 1000000 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "permissions": { "$ref": "#/$defs/permissions" },
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "budget": { "$ref": "../agent/message.schema.json#/$defs/budget" },
+        "stall_steps": {
+          "description": "Stop a task after this many consecutive steps with no new evidence, memory or claim (the 'thinking effectiveness' check).",
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "computer": {
+      "description": "Computer use (docs/adr/0012): screenshots, mouse and keyboard in the windows the user allows, launching and closing the user's listed programs, terminal commands. Everything is off unless set here. 'guardian': the acting agent's paired guardian must approve each action before it runs, and anything irreversible also needs the user; 'ask': the user approves every action. An agent with no guardian is always asked through the user.",
+      "type": "object",
+      "properties": {
+        "screenshot": { "enum": ["off", "on"] },
+        "input": { "description": "Mouse and keyboard.", "enum": ["off", "guardian", "ask"] },
+        "apps": { "description": "Launch any program (by path or by a name Windows knows; the 'launch' list only gives some of them short names); close programs Lumen launched. On with the mouse and keyboard unless set off.", "enum": ["off", "guardian", "ask"] },
+        "terminal": { "description": "The terminal tool: every command is approved first (pre-approved commands go through run_command and permissions.command_allowlist instead).", "enum": ["off", "guardian", "ask"] },
+        "disabled": { "description": "true: computer use is off altogether (设置 → 电脑操作 → 禁止电脑操作): no screenshots, mouse, keyboard, programs or terminal.", "type": "boolean" },
+        "background": { "description": "true (default): agents work in the allowed windows behind the user's back: clicks and typing go to the window itself and its own picture is read, so the user's mouse, keyboard and front window stay theirs. Games and other programs that read the real mouse need false: agents then take over the mouse and keyboard.", "type": "boolean" },
+        "capture": { "description": "windows (default): screenshots show only the allowed windows. screen: the whole desktop.", "enum": ["windows", "screen"] },
+        "windows": {
+          "description": "Kept for older configurations; no longer limits anything: every window but Lumen's own is open, and the approval choice decides who is asked.",
+          "type": "array", "maxItems": 32, "items": { "type": "string", "minLength": 0, "maxLength": 256 }
+        },
+        "launch": {
+          "description": "The only programs agents may start.",
+          "type": "array", "maxItems": 32,
+          "items": {
+            "type": "object", "required": ["id", "path"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$" },
+              "path": { "type": "string", "minLength": 1 },
+              "args": { "type": "array", "maxItems": 32, "items": { "type": "string" } },
+              "cwd": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "screenshot_data_class": { "description": "Sensitivity of screenshots; decides which model endpoints may see them. Default internal.", "$ref": "../common/defs.schema.json#/$defs/dataClass" },
+        "guardian_timeout_s": { "type": "integer", "minimum": 10, "maximum": 3600 },
+        "user_timeout_s": { "type": "integer", "minimum": 10, "maximum": 86400 },
+        "max_actions_per_task": { "type": "integer", "minimum": 1, "maximum": 10000 }
+      },
+      "additionalProperties": false
+    },
+    "memory": {
+      "description": "Project-wide long-term memory settings (docs/adr/0007).",
+      "type": "object",
+      "properties": {
+        "embedding": {
+          "description": "Optional semantic recall. The user picks the embedding endpoint and model; without this, recall uses text and the coupling graph only. Notes are sent to the endpoint only when their data class is allowed there (endpoint max_data_class).",
+          "type": "object",
+          "required": ["endpoint", "model"],
+          "properties": {
+            "endpoint": { "$ref": "../agent/defs.schema.json#/$defs/endpointId" },
+            "model": { "type": "string", "minLength": 1, "maxLength": 256 },
+            "min_similarity": {
+              "description": "Cosine similarity below which a note does not count as similar in meaning. Depends on the model; default 0.35.",
+              "type": "number", "minimum": 0, "maximum": 0.99
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "endpoint": {
+      "type": "object",
+      "required": ["id", "kind", "base_url", "local"],
+      "properties": {
+        "id": { "$ref": "../agent/defs.schema.json#/$defs/endpointId" },
+        "kind": {
+          "description": "openai_compatible covers OpenAI, DeepSeek, Ollama, LM Studio, llama.cpp server, vLLM and any service speaking /v1/chat/completions. 'scripted' is a deterministic fake for tests and demos. 'engine' is the user's own Claude Code or Codex (base_url engine:claude_code / engine:codex): an agent on it hands its investigations to that program (codedoctor/engines.py).",
+          "enum": ["openai_compatible", "anthropic", "scripted", "engine"]
+        },
+        "base_url": { "type": "string", "pattern": "^(https?://[^\\s]+|scripted:[^\\s]*|engine:(claude_code|codex))$" },
+        "api_key_env": {
+          "description": "Name of the environment variable holding the key. Omit for local servers that need none.",
+          "type": "string",
+          "pattern": "^[A-Z_][A-Z0-9_]{0,127}$"
+        },
+        "api_key_keyring": {
+          "description": "true: the key is stored in the operating system's credential store (Windows Credential Manager) under service 'codedoctor', account = this endpoint id. Used when the environment variable is not set. The key itself never appears in this file.",
+          "type": "boolean"
+        },
+        "name": { "description": "Display name, e.g. 'DeepSeek' or 'My vLLM box'.", "type": "string", "maxLength": 80 },
+        "provider": { "description": "Preset this endpoint was created from (codedoctor.providers), for display only.", "type": "string", "pattern": "^[a-z0-9_-]{1,40}$" },
+        "text_tool_calls": {
+          "description": "openai_compatible only. true (default): when a model writes a tool call as JSON in its reply instead of using tool_calls, recover it (only for offered tools, and only when the JSON is the whole reply).",
+          "type": "boolean"
+        },
+        "models": {
+          "description": "Model names the user wants to pick from for this endpoint (convenience list; any name can still be typed).",
+          "type": "array",
+          "maxItems": 200,
+          "items": { "type": "string", "minLength": 1, "maxLength": 256 }
+        },
+        "local": {
+          "description": "true if the endpoint runs on this machine. Only local endpoints may receive data classed local_only.",
+          "type": "boolean"
+        },
+        "max_data_class": {
+          "description": "Most sensitive data class this endpoint may receive. Default: internal for remote endpoints, local_only for local ones.",
+          "$ref": "../common/defs.schema.json#/$defs/dataClass"
+        },
+        "max_concurrency": { "type": "integer", "minimum": 1, "maximum": 256 },
+        "timeout_s": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "description": "A remote endpoint can never be allowed local_only data.",
+          "if": { "properties": { "local": { "const": false } } },
+          "then": { "properties": { "max_data_class": { "not": { "const": "local_only" } } } }
+        }
+      ]
+    },
+    "modelChoice": {
+      "type": "object",
+      "required": ["endpoint", "model"],
+      "properties": {
+        "endpoint": { "$ref": "../agent/defs.schema.json#/$defs/endpointId" },
+        "model": { "type": "string", "minLength": 1, "maxLength": 256 }
+      },
+      "additionalProperties": false
+    },
+    "agent": {
+      "type": "object",
+      "required": ["id", "role", "endpoint", "model"],
+      "properties": {
+        "id": { "$ref": "../agent/defs.schema.json#/$defs/agentId" },
+        "role": { "$ref": "../agent/defs.schema.json#/$defs/role" },
+        "endpoint": { "$ref": "../agent/defs.schema.json#/$defs/endpointId" },
+        "model": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "fallbacks": {
+          "description": "Tried in order only when the primary model fails. Empty or absent: the agent pauses and asks the user.",
+          "type": "array",
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/modelChoice" }
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "temperature": { "type": "number", "minimum": 0, "maximum": 2 },
+            "max_output_tokens": { "type": "integer", "minimum": 1 },
+            "reasoning": { "description": "思考强度; each provider gets its own parameter (models/reasoning.py). Not set: the provider's default.", "enum": ["off", "low", "medium", "high", "max"] }
+          },
+          "additionalProperties": false
+        },
+        "context_budget_tokens": {
+          "description": "How much context the user lets this agent send per call. Not reduced automatically for speed.",
+          "type": "integer",
+          "minimum": 1024
+        },
+        "tools": {
+          "description": "Tools this agent may use. Absent = the default set for its role.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$" }
+        },
+        "memory": {
+          "type": "object",
+          "properties": {
+            "recall_k": { "description": "Memory notes injected at the start of each task.", "type": "integer", "minimum": 0, "maximum": 200 },
+            "shared_read": { "description": "May read project-shared memory in addition to its own.", "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        "system_prompt_extra": { "type": "string", "maxLength": 20000 },
+        "team": {
+          "description": "A member of the Lumen team (agents/team.py): its own name, job and memory; Lumen hands it work. Not part of the cluster modes.",
+          "type": "boolean"
+        },
+        "supervises": {
+          "description": "Guardian only: the worker this guardian is paired with. Every finished task of that worker is automatically sent to this guardian for independent review.",
+          "$ref": "../agent/defs.schema.json#/$defs/agentId"
+        },
+        "supervises_workers": {
+          "description": "Guardian only, 协作小队 (cluster.mode small): the workers this guardian re-checks (docs/adr/0015).",
+          "type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true,
+          "items": { "$ref": "../agent/defs.schema.json#/$defs/agentId" }
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "required": ["supervises"] },
+          "then": { "properties": { "role": { "const": "guardian" } } }
+        },
+        {
+          "if": { "required": ["supervises_workers"] },
+          "then": { "properties": { "role": { "const": "guardian" } } }
+        }
+      ]
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "run_command": {
+          "description": "deny: no shell. allowlist: only commands starting with an allowed prefix.",
+          "enum": ["deny", "allowlist"]
+        },
+        "command_allowlist": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 256 } },
+        "write_files": { "type": "boolean" },
+        "test_command": { "description": "The project's test command, run by the system (not a model) before the first change, after every change and before finishing (docs/adr/0016). No shell: one command, arguments split like a command line.", "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false,
+      "if": { "properties": { "run_command": { "const": "allowlist" } }, "required": ["run_command"] },
+      "then": { "required": ["command_allowlist"] }
+    }
+  }
+}

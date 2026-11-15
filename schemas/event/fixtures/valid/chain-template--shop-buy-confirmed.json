@@ -1,0 +1,97 @@
+{
+  "description": "User-confirmed expectation for the buy flow.",
+  "schema": "event/chain-template.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.event.chain-template/0",
+    "id": "tpl:shop.buy",
+    "version": 3,
+    "name": "Buy an item",
+    "description": "Click Buy -> POST /api/shop/buy -> ShopService.buy -> players/orders write -> UI updates gold and inventory.",
+    "source": "user",
+    "confirmed_by_user": true,
+    "trigger": {
+      "cd_kind": "ui.action",
+      "service": "shop-web",
+      "attributes_prefix": {
+        "cd.ui.target.selector": "#shop "
+      }
+    },
+    "stages": [
+      {
+        "id": "request",
+        "layer": "http_client",
+        "match": {
+          "cd_kind": "http.client",
+          "attributes_equal": {
+            "url.path": "/api/shop/buy"
+          }
+        },
+        "required": true,
+        "deadline_ms": 1000
+      },
+      {
+        "id": "server",
+        "layer": "http_server",
+        "match": {
+          "cd_kind": "http.server",
+          "service": "shop-api",
+          "attributes_equal": {
+            "http.route": "/api/shop/buy"
+          }
+        },
+        "required": true,
+        "after": [
+          "request"
+        ],
+        "deadline_ms": 1500
+      },
+      {
+        "id": "handler",
+        "layer": "handler",
+        "match": {
+          "cd_kind": "handler",
+          "attributes_equal": {
+            "code.function.name": "ShopService.buy"
+          }
+        },
+        "required": true,
+        "after": [
+          "server"
+        ],
+        "deadline_ms": 1500
+      },
+      {
+        "id": "db-write",
+        "layer": "db",
+        "match": {
+          "cd_kind": "db",
+          "attributes_equal": {
+            "db.collection.name": "orders",
+            "db.operation.name": "INSERT"
+          }
+        },
+        "required": true,
+        "after": [
+          "handler"
+        ],
+        "deadline_ms": 2000
+      },
+      {
+        "id": "ui-update",
+        "layer": "ui",
+        "match": {
+          "cd_kind": "ui.settle",
+          "attributes_equal": {
+            "cd.ui.settle.result": "changed"
+          }
+        },
+        "required": true,
+        "after": [
+          "request"
+        ],
+        "deadline_ms": 3000
+      }
+    ]
+  }
+}

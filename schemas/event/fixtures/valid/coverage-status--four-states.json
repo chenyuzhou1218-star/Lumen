@@ -1,0 +1,46 @@
+{
+  "description": "One row in each of the four states.",
+  "schema": "event/coverage-status.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.event.coverage-status/0",
+    "computed_at": "2026-10-24T12:20:00Z",
+    "rows": [
+      {
+        "service": "shop-api",
+        "layer": "http_server",
+        "status": "healthy",
+        "reason": "heartbeats regular, 0 drops",
+        "probe_id": "prb_01JB8Z0000000000000000APYX",
+        "coverage": "ev:coverage:01JB8Z1000000000000000CV02",
+        "health": "ev:health:01JB8Z5000000000000000HA01",
+        "last_report_at": "2026-10-24T12:19:58Z"
+      },
+      {
+        "service": "shop-api",
+        "layer": "db",
+        "template": "tpl:shop.buy",
+        "stage": "db-write",
+        "status": "degraded",
+        "reason": "17 spans dropped (queue full) in the last window",
+        "probe_id": "prb_01JB8Z0000000000000000APYX",
+        "coverage": "ev:coverage:01JB8Z1000000000000000CV02",
+        "health": "ev:health:01JB8Z5000000000000000HA01"
+      },
+      {
+        "service": "shop-web",
+        "layer": "ui",
+        "status": "declared",
+        "reason": "declared, no health report yet",
+        "probe_id": "prb_01JB8Z0000000000000000BRWS",
+        "coverage": "ev:coverage:01JB8Z1000000000000000CV01"
+      },
+      {
+        "service": "payment",
+        "layer": "http_server",
+        "status": "not_instrumented",
+        "reason": "no probe declares this service"
+      }
+    ]
+  }
+}

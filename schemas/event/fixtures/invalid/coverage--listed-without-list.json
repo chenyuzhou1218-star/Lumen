@@ -1,0 +1,56 @@
+{
+  "description": "Mode 'listed' with nothing listed.",
+  "schema": "event/coverage.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "anyOf",
+    "path": "/scope"
+  },
+  "instance": {
+    "cd_schema": "cd.event.coverage/0",
+    "id": "ev:coverage:01JB8Z1000000000000000CV02",
+    "probe_id": "prb_01JB8Z0000000000000000APYX",
+    "declared_at": "2026-10-24T09:00:02Z",
+    "service": {
+      "name": "shop-api",
+      "instance_id": "api-1",
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+    },
+    "sdk": {
+      "name": "codedoctor-python",
+      "version": "0.1.0",
+      "language": "python"
+    },
+    "layers": [
+      "http_server",
+      "handler",
+      "db"
+    ],
+    "scope": {
+      "mode": "listed"
+    },
+    "sampling": {
+      "strategy": "parent_based_ratio",
+      "ratio": 1.0,
+      "records_decisions": true
+    },
+    "export": {
+      "exporter": "otlp_http",
+      "max_queue_size": 2048,
+      "scheduled_delay_ms": 1000,
+      "flush_on_shutdown": true
+    },
+    "heartbeat_interval_ms": 5000,
+    "propagators": [
+      "tracecontext",
+      "baggage"
+    ],
+    "redaction": {
+      "policy_id": "default/0",
+      "captures_bodies": false,
+      "extra_sensitive_keys": [
+        "player.email"
+      ]
+    }
+  }
+}

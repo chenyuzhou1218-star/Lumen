@@ -1,0 +1,25 @@
+{
+  "description": "Model events must say which model.",
+  "schema": "memory/journal-entry.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "required",
+    "message_contains": "model"
+  },
+  "instance": {
+    "cd_schema": "cd.memory.journal/0",
+    "id": "jrn_01JB8ZB000000000000000JR17",
+    "seq": 17,
+    "agent": "doctor",
+    "task_id": "task_01JB8Z2000000000000000TK01",
+    "type": "model_response",
+    "at": "2026-10-24T11:02:00Z",
+    "data": {
+      "finish": "tool_calls",
+      "tool_calls": 1,
+      "input_tokens": 6012,
+      "output_tokens": 210
+    },
+    "blob": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  }
+}

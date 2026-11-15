@@ -1,0 +1,26 @@
+{
+  "description": "Ingest report; watermark past the window means everything that arrived is stored.",
+  "schema": "event/telemetry-health.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.event.telemetry-health/0",
+    "id": "ev:health:01JB8Z5000000000000000HG01",
+    "component": {
+      "type": "ingest",
+      "id": "codedoctor-ingest"
+    },
+    "heartbeat_seq": 9001,
+    "window": {
+      "start_unix_nano": "1761299995000000000",
+      "end_unix_nano": "1761300005000000000"
+    },
+    "received_at": "2026-10-24T09:10:05Z",
+    "counters": {
+      "items_received": 1450,
+      "items_rejected": 0,
+      "items_dropped": 0,
+      "items_persisted": 1450
+    },
+    "ingest_watermark_unix_nano": "1761300006000000000"
+  }
+}

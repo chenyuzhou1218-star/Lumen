@@ -1,0 +1,2475 @@
+{
+ "label": "2026-10-24-scripted-baseline",
+ "models": "脚本模型（bench/policies.py），没有调用任何真实模型",
+ "memory": {
+  "configs": [
+   {
+    "id": "before",
+    "label": "ADR 0003（本批之前）"
+   },
+   {
+    "id": "m1",
+    "label": "+M1 主张状态"
+   },
+   {
+    "id": "m1_m3",
+    "label": "+M3 按主张拆分"
+   },
+   {
+    "id": "current",
+    "label": "+M2 耦合回忆（当前）"
+   }
+  ],
+  "not_run": [
+   {
+    "id": "m6",
+    "label": "+M6 按意思回忆",
+    "why": "没有指定嵌入模型（用 --embedding-config 指向你的配置文件）"
+   }
+  ],
+  "scenarios": [
+   {
+    "id": "shop-history",
+    "claims": {
+     "c1": "supported",
+     "c2": "refuted",
+     "c3": "supported",
+     "c4": "superseded",
+     "c5": "supported",
+     "c6": "needs_revalidation"
+    },
+    "configs": {
+     "before": {
+      "summary": {
+       "probes": 11,
+       "recall_at_k": 0.909,
+       "mrr": 0.649,
+       "unsafe": 3,
+       "trap_above": 1,
+       "leaks": 0,
+       "perfect": 5
+      },
+      "probes": [
+       {
+        "id": "p1",
+        "lang": "zh",
+        "query": "玩家说断线重连之后比赛奖励到账了两次，怎么回事？",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 1,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t2",
+          "score": 0.3889,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "note:n13",
+          "score": 0.1111,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p2",
+        "lang": "zh",
+        "query": "ShopUI.onBuyClick 点一次扣了两次钱",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t1",
+          "score": 0.1429,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p3",
+        "lang": "zh",
+        "query": "金币和 ledger 流水对不上",
+        "recall": 0.0,
+        "rr": 0.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n10",
+          "score": 0.2,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 0.2,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p4",
+        "lang": "zh",
+        "query": "点购买没反应，也没有任何提示",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t4",
+          "score": 0.4444,
+          "warned": true
+         },
+         {
+          "rank": 2,
+          "note": "note:n1",
+          "score": 0.2222,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p5",
+        "lang": "zh",
+        "query": "金币显示不刷新",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n1",
+          "score": 0.6,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 0.4,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p6",
+        "lang": "zh",
+        "query": "add_gold 要不要加 request_id 幂等键？",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n4",
+          "score": 0.85,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 0.6,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "summary:t2",
+          "score": 0.4,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p7",
+        "lang": "zh",
+        "query": "spend_gold 并发购买怎么测试",
+        "recall": 1.0,
+        "rr": 0.5,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t1",
+          "score": 0.4286,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t4",
+          "score": 0.1429,
+          "warned": true
+         },
+         {
+          "rank": 3,
+          "note": "summary:t5",
+          "score": 0.1429,
+          "warned": false
+         },
+         {
+          "rank": 4,
+          "note": "summary:t3",
+          "score": 0.1429,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p8",
+        "lang": "en",
+        "query": "Why does /api/session/reconnect change the player's gold?",
+        "recall": 1.0,
+        "rr": 0.14285714285714285,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n4",
+          "score": 0.5,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "note:n1",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "note:n6",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 4,
+          "note": "summary:t4",
+          "score": 0.25,
+          "warned": true
+         },
+         {
+          "rank": 5,
+          "note": "summary:t5",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 6,
+          "note": "summary:t3",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 7,
+          "note": "summary:t2",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 8,
+          "note": "summary:t1",
+          "score": 0.25,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p9",
+        "lang": "en",
+        "query": "match reward paid twice",
+        "recall": 1.0,
+        "rr": 0.25,
+        "unsafe": 1,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n10",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "note:n9",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "note:n2",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 4,
+          "note": "summary:t2",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "note:n13",
+          "score": 0.25,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p10",
+        "lang": "code",
+        "query": "retryFetch",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t1",
+          "score": 1.0,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p11",
+        "lang": "zh",
+        "query": "web/match.js 的 finishMatch 有什么已知问题？",
+        "recall": 1.0,
+        "rr": 0.25,
+        "unsafe": 1,
+        "trap_above": 1,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n4",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t2",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "note:n13",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 4,
+          "note": "note:n2",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "note:n12",
+          "score": 0.125,
+          "warned": false
+         },
+         {
+          "rank": 6,
+          "note": "note:n11",
+          "score": 0.125,
+          "warned": false
+         },
+         {
+          "rank": 7,
+          "note": "note:n10",
+          "score": 0.125,
+          "warned": false
+         },
+         {
+          "rank": 8,
+          "note": "note:n9",
+          "score": 0.125,
+          "warned": false
+         }
+        ]
+       }
+      ]
+     },
+     "m1": {
+      "summary": {
+       "probes": 11,
+       "recall_at_k": 0.909,
+       "mrr": 0.635,
+       "unsafe": 3,
+       "trap_above": 2,
+       "leaks": 0,
+       "perfect": 5
+      },
+      "probes": [
+       {
+        "id": "p1",
+        "lang": "zh",
+        "query": "玩家说断线重连之后比赛奖励到账了两次，怎么回事？",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 1,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t2",
+          "score": 0.3389,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "note:n13",
+          "score": 0.1111,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p2",
+        "lang": "zh",
+        "query": "ShopUI.onBuyClick 点一次扣了两次钱",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t1",
+          "score": 0.3429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p3",
+        "lang": "zh",
+        "query": "金币和 ledger 流水对不上",
+        "recall": 0.0,
+        "rr": 0.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t1",
+          "score": 0.4,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "note:n10",
+          "score": 0.2,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p4",
+        "lang": "zh",
+        "query": "点购买没反应，也没有任何提示",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t4",
+          "score": 0.2944,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "note:n1",
+          "score": 0.2222,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p5",
+        "lang": "zh",
+        "query": "金币显示不刷新",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n1",
+          "score": 0.6,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 0.6,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p6",
+        "lang": "zh",
+        "query": "add_gold 要不要加 request_id 幂等键？",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n4",
+          "score": 0.85,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 0.8,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "summary:t2",
+          "score": 0.35,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p7",
+        "lang": "zh",
+        "query": "spend_gold 并发购买怎么测试",
+        "recall": 1.0,
+        "rr": 0.5,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t1",
+          "score": 0.6286,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "summary:t5",
+          "score": 0.3429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "summary:t3",
+          "score": 0.3429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "summary:t4",
+          "score": -0.0071,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p8",
+        "lang": "en",
+        "query": "Why does /api/session/reconnect change the player's gold?",
+        "recall": 1.0,
+        "rr": 0.14285714285714285,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n4",
+          "score": 0.5,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t5",
+          "score": 0.45,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "summary:t3",
+          "score": 0.45,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "summary:t1",
+          "score": 0.45,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 5,
+          "note": "note:n1",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 6,
+          "note": "note:n6",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 7,
+          "note": "summary:t2",
+          "score": 0.2,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 8,
+          "note": "note:n12",
+          "score": 0.125,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p9",
+        "lang": "en",
+        "query": "match reward paid twice",
+        "recall": 1.0,
+        "rr": 0.2,
+        "unsafe": 1,
+        "trap_above": 1,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n10",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "note:n9",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "note:n2",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 4,
+          "note": "note:n13",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "summary:t2",
+          "score": 0.2,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p10",
+        "lang": "code",
+        "query": "retryFetch",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t1",
+          "score": 1.2,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p11",
+        "lang": "zh",
+        "query": "web/match.js 的 finishMatch 有什么已知问题？",
+        "recall": 1.0,
+        "rr": 0.14285714285714285,
+        "unsafe": 1,
+        "trap_above": 1,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n4",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "note:n13",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "summary:t5",
+          "score": 0.325,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "summary:t3",
+          "score": 0.325,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 5,
+          "note": "summary:t2",
+          "score": 0.325,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 6,
+          "note": "summary:t1",
+          "score": 0.325,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 7,
+          "note": "note:n2",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 8,
+          "note": "note:n12",
+          "score": 0.125,
+          "warned": false
+         }
+        ]
+       }
+      ]
+     },
+     "m1_m3": {
+      "summary": {
+       "probes": 11,
+       "recall_at_k": 1.0,
+       "mrr": 0.703,
+       "unsafe": 3,
+       "trap_above": 2,
+       "leaks": 0,
+       "perfect": 5
+      },
+      "probes": [
+       {
+        "id": "p1",
+        "lang": "zh",
+        "query": "玩家说断线重连之后比赛奖励到账了两次，怎么回事？",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 1,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c3",
+          "score": 0.3111,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "claim:c1",
+          "score": 0.2556,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "summary:t2",
+          "score": 0.2389,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "note:n13",
+          "score": 0.1111,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "claim:c2",
+          "score": -0.1889,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p2",
+        "lang": "zh",
+        "query": "ShopUI.onBuyClick 点一次扣了两次钱",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c1",
+          "score": 0.6286,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 0.2429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c6",
+          "score": -0.0071,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p3",
+        "lang": "zh",
+        "query": "金币和 ledger 流水对不上",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c4",
+          "score": 1.2,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "claim:c5",
+          "score": 0.4,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c3",
+          "score": 0.4,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "claim:c1",
+          "score": 0.4,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 5,
+          "note": "summary:t1",
+          "score": 0.3,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 6,
+          "note": "note:n10",
+          "score": 0.2,
+          "warned": false
+         }
+        ]
+       },
+       {
+        "id": "p4",
+        "lang": "zh",
+        "query": "点购买没反应，也没有任何提示",
+        "recall": 1.0,
+        "rr": 0.5,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n1",
+          "score": 0.2222,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t4",
+          "score": 0.1944,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c6",
+          "score": -0.0389,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p5",
+        "lang": "zh",
+        "query": "金币显示不刷新",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n1",
+          "score": 0.6,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 0.5,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p6",
+        "lang": "zh",
+        "query": "add_gold 要不要加 request_id 幂等键？",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n4",
+          "score": 0.85,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 0.7,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c3",
+          "score": 0.6,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "claim:c1",
+          "score": 0.4,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 5,
+          "note": "summary:t2",
+          "score": 0.25,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p7",
+        "lang": "zh",
+        "query": "spend_gold 并发购买怎么测试",
+        "recall": 1.0,
+        "rr": 0.5,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "summary:t1",
+          "score": 0.5286,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "claim:c5",
+          "score": 0.3429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c4",
+          "score": 0.3429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "summary:t5",
+          "score": 0.2429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 5,
+          "note": "summary:t3",
+          "score": 0.2429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 6,
+          "note": "claim:c6",
+          "score": -0.0071,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         },
+         {
+          "rank": 7,
+          "note": "summary:t4",
+          "score": -0.1071,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p8",
+        "lang": "en",
+        "query": "Why does /api/session/reconnect change the player's gold?",
+        "recall": 1.0,
+        "rr": 0.3333333333333333,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c5",
+          "score": 0.7,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "claim:c4",
+          "score": 0.7,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c3",
+          "score": 0.575,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "note:n4",
+          "score": 0.5,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "claim:c1",
+          "score": 0.45,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 6,
+          "note": "note:n1",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 7,
+          "note": "summary:t5",
+          "score": 0.35,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 8,
+          "note": "summary:t3",
+          "score": 0.35,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p9",
+        "lang": "en",
+        "query": "match reward paid twice",
+        "recall": 1.0,
+        "rr": 0.2,
+        "unsafe": 1,
+        "trap_above": 1,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n10",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "note:n9",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "note:n2",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 4,
+          "note": "note:n13",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "summary:t2",
+          "score": 0.1,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 6,
+          "note": "claim:c2",
+          "score": -0.05,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p10",
+        "lang": "code",
+        "query": "retryFetch",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c1",
+          "score": 1.2,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 1.1,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p11",
+        "lang": "zh",
+        "query": "web/match.js 的 finishMatch 有什么已知问题？",
+        "recall": 1.0,
+        "rr": 0.2,
+        "unsafe": 1,
+        "trap_above": 1,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n4",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "note:n13",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "claim:c3",
+          "score": 0.325,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "claim:c1",
+          "score": 0.325,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 5,
+          "note": "note:n2",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 6,
+          "note": "summary:t5",
+          "score": 0.225,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 7,
+          "note": "summary:t3",
+          "score": 0.225,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 8,
+          "note": "summary:t2",
+          "score": 0.225,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "current": {
+      "summary": {
+       "probes": 11,
+       "recall_at_k": 1.0,
+       "mrr": 0.761,
+       "unsafe": 3,
+       "trap_above": 3,
+       "leaks": 0,
+       "perfect": 6
+      },
+      "probes": [
+       {
+        "id": "p1",
+        "lang": "zh",
+        "query": "玩家说断线重连之后比赛奖励到账了两次，怎么回事？",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 1,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c3",
+          "score": 0.3111,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "claim:c1",
+          "score": 0.2556,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "summary:t2",
+          "score": 0.2389,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "note:n13",
+          "score": 0.1111,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "claim:c2",
+          "score": -0.1889,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p2",
+        "lang": "zh",
+        "query": "ShopUI.onBuyClick 点一次扣了两次钱",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c1",
+          "score": 1.0286,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ],
+          "via": "affected by 'ShopUI.onBuyClick': ShopUI.onBuyClick -calls-> /api/shop/buy"
+         },
+         {
+          "rank": 2,
+          "note": "claim:c6",
+          "score": 0.5929,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "summary:t1",
+          "score": 0.2429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p3",
+        "lang": "zh",
+        "query": "金币和 ledger 流水对不上",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c4",
+          "score": 1.6,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ],
+          "via": "affects 'ledger': spend_gold -writes-> ledger"
+         },
+         {
+          "rank": 2,
+          "note": "note:n10",
+          "score": 0.8,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "claim:c5",
+          "score": 0.8,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ],
+          "via": "affects 'ledger': spend_gold -writes-> ledger"
+         },
+         {
+          "rank": 4,
+          "note": "note:n4",
+          "score": 0.65,
+          "warned": false,
+          "via": "affects 'ledger': add_gold -writes-> ledger"
+         },
+         {
+          "rank": 5,
+          "note": "claim:c3",
+          "score": 0.65,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ],
+          "via": "affects 'ledger': spend_gold -writes-> ledger, spend_gold -reads-> py/gold"
+         },
+         {
+          "rank": 6,
+          "note": "claim:c1",
+          "score": 0.4,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 7,
+          "note": "summary:t1",
+          "score": 0.3,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 8,
+          "note": "claim:c6",
+          "score": 0.25,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ],
+          "via": "affects 'ledger': spend_gold -writes-> ledger"
+         }
+        ]
+       },
+       {
+        "id": "p4",
+        "lang": "zh",
+        "query": "点购买没反应，也没有任何提示",
+        "recall": 1.0,
+        "rr": 0.5,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n1",
+          "score": 0.2222,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t4",
+          "score": 0.1944,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c6",
+          "score": -0.0389,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p5",
+        "lang": "zh",
+        "query": "金币显示不刷新",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n1",
+          "score": 0.6,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 0.5,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p6",
+        "lang": "zh",
+        "query": "add_gold 要不要加 request_id 幂等键？",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n4",
+          "score": 1.45,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "claim:c3",
+          "score": 1.0,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ],
+          "via": "affected by 'add_gold': add_gold -writes-> py/gold"
+         },
+         {
+          "rank": 3,
+          "note": "summary:t1",
+          "score": 0.7,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "claim:c5",
+          "score": 0.45,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ],
+          "via": "affected by 'add_gold': add_gold -writes-> py/gold, spend_gold -reads-> py/gold"
+         },
+         {
+          "rank": 5,
+          "note": "claim:c4",
+          "score": 0.45,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ],
+          "via": "affected by 'add_gold': add_gold -writes-> py/gold, spend_gold -reads-> py/gold"
+         },
+         {
+          "rank": 6,
+          "note": "note:n10",
+          "score": 0.4,
+          "warned": false,
+          "via": "affected by 'add_gold': add_gold -writes-> ledger"
+         },
+         {
+          "rank": 7,
+          "note": "claim:c1",
+          "score": 0.4,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 8,
+          "note": "note:n11",
+          "score": 0.25,
+          "warned": false,
+          "via": "affects 'add_gold': settle -calls-> add_gold, reconnect -calls-> settle"
+         }
+        ]
+       },
+       {
+        "id": "p7",
+        "lang": "zh",
+        "query": "spend_gold 并发购买怎么测试",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c5",
+          "score": 0.9429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "claim:c4",
+          "score": 0.9429,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c3",
+          "score": 0.6,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ],
+          "via": "affected by 'spend_gold': spend_gold -writes-> py/gold"
+         },
+         {
+          "rank": 4,
+          "note": "claim:c6",
+          "score": 0.5929,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ]
+         },
+         {
+          "rank": 5,
+          "note": "summary:t1",
+          "score": 0.5286,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 6,
+          "note": "note:n4",
+          "score": 0.5,
+          "warned": false,
+          "via": "affects 'spend_gold': spend_gold -reads-> py/gold, add_gold -writes-> py/gold"
+         },
+         {
+          "rank": 7,
+          "note": "claim:c1",
+          "score": 0.45,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ],
+          "via": "affects 'spend_gold': buy -calls-> spend_gold, /api/shop/buy -handles-> buy"
+         },
+         {
+          "rank": 8,
+          "note": "note:n10",
+          "score": 0.4,
+          "warned": false,
+          "via": "affected by 'spend_gold': spend_gold -writes-> ledger"
+         }
+        ]
+       },
+       {
+        "id": "p8",
+        "lang": "en",
+        "query": "Why does /api/session/reconnect change the player's gold?",
+        "recall": 1.0,
+        "rr": 0.3333333333333333,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c5",
+          "score": 0.7,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "claim:c4",
+          "score": 0.7,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c3",
+          "score": 0.575,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 4,
+          "note": "note:n4",
+          "score": 0.5,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "claim:c1",
+          "score": 0.45,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 6,
+          "note": "note:n1",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 7,
+          "note": "summary:t5",
+          "score": 0.35,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 8,
+          "note": "summary:t3",
+          "score": 0.35,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p9",
+        "lang": "en",
+        "query": "match reward paid twice",
+        "recall": 1.0,
+        "rr": 0.2,
+        "unsafe": 1,
+        "trap_above": 1,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n10",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "note:n9",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 3,
+          "note": "note:n2",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 4,
+          "note": "note:n13",
+          "score": 0.25,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "summary:t2",
+          "score": 0.1,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2",
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 6,
+          "note": "claim:c2",
+          "score": -0.05,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2"
+          ]
+         }
+        ]
+       },
+       {
+        "id": "p10",
+        "lang": "code",
+        "query": "retryFetch",
+        "recall": 1.0,
+        "rr": 1.0,
+        "unsafe": 0,
+        "trap_above": 0,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "claim:c1",
+          "score": 1.8,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 2,
+          "note": "summary:t1",
+          "score": 1.1,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "claim:c6",
+          "score": 0.25,
+          "warned": true,
+          "flags": [
+           "STALE (code changed since; re-check before relying on it): c6"
+          ],
+          "via": "affects 'retryFetch': ShopUI.onBuyClick -calls-> retryFetch"
+         }
+        ]
+       },
+       {
+        "id": "p11",
+        "lang": "zh",
+        "query": "web/match.js 的 finishMatch 有什么已知问题？",
+        "recall": 1.0,
+        "rr": 0.3333333333333333,
+        "unsafe": 1,
+        "trap_above": 2,
+        "leaks": 0,
+        "top": [
+         {
+          "rank": 1,
+          "note": "note:n13",
+          "score": 0.975,
+          "warned": false
+         },
+         {
+          "rank": 2,
+          "note": "claim:c2",
+          "score": 0.675,
+          "warned": true,
+          "flags": [
+           "REFUTED (disproven; do not rely on it): c2"
+          ]
+         },
+         {
+          "rank": 3,
+          "note": "note:n2",
+          "score": 0.65,
+          "warned": false,
+          "via": "affected by 'web/match.js': finishMatch -calls-> /api/match/report"
+         },
+         {
+          "rank": 4,
+          "note": "note:n4",
+          "score": 0.375,
+          "warned": false
+         },
+         {
+          "rank": 5,
+          "note": "claim:c3",
+          "score": 0.325,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c3"
+          ]
+         },
+         {
+          "rank": 6,
+          "note": "claim:c1",
+          "score": 0.325,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c1"
+          ]
+         },
+         {
+          "rank": 7,
+          "note": "summary:t5",
+          "score": 0.225,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c5"
+          ]
+         },
+         {
+          "rank": 8,
+          "note": "summary:t3",
+          "score": 0.225,
+          "warned": false,
+          "flags": [
+           "VERIFIED: c4 (superseded by c5)"
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "summary": {
+   "before": {
+    "probes": 11,
+    "recall_at_k": 0.909,
+    "mrr": 0.649,
+    "unsafe": 3,
+    "trap_above": 1,
+    "leaks": 0,
+    "perfect": 5
+   },
+   "m1": {
+    "probes": 11,
+    "recall_at_k": 0.909,
+    "mrr": 0.635,
+    "unsafe": 3,
+    "trap_above": 2,
+    "leaks": 0,
+    "perfect": 5
+   },
+   "m1_m3": {
+    "probes": 11,
+    "recall_at_k": 1.0,
+    "mrr": 0.703,
+    "unsafe": 3,
+    "trap_above": 2,
+    "leaks": 0,
+    "perfect": 5
+   },
+   "current": {
+    "probes": 11,
+    "recall_at_k": 1.0,
+    "mrr": 0.761,
+    "unsafe": 3,
+    "trap_above": 3,
+    "leaks": 0,
+    "perfect": 6
+   }
+  }
+ },
+ "reasoning": {
+  "defect_checks": {
+   "unclaimed_conclusion": "交付了答案，但背后没有任何有效的因果主张",
+   "unsupported_conclusion": "交付了答案，但它依赖的因果主张没有一条经过验证",
+   "false_lead_asserted": "有效的因果主张指向已知的错误线索",
+   "competing_open": "两个以上互相竞争的因果假设仍未排除，且彼此不构成推理链",
+   "chain_gap": "某条有效的因果主张没有通过主张链连接到报告的症状"
+  },
+  "static": [
+   {
+    "id": "shop-static",
+    "kind": "static",
+    "parse_errors": {},
+    "summary": {
+     "defects_detected": "7/7",
+     "defect_recall": 1.0,
+     "mean_defect_rank": 5.14,
+     "risks_reported": 11,
+     "risks_matching_a_known_defect": 7,
+     "common_cause_hit_at_1": 2,
+     "common_cause_hit_at_3": 2,
+     "common_cause_probes": 3,
+     "impact_recall": 1.0
+    },
+    "defects": [
+     {
+      "id": "d1",
+      "what": "player.gold 被三个入口写入，没有锁也没有事务",
+      "detected": true,
+      "rank": 5
+     },
+     {
+      "id": "d2",
+      "what": "reconnect 重放 settle，add_gold 没有幂等键",
+      "detected": true,
+      "rank": 2
+     },
+     {
+      "id": "d3",
+      "what": "retryFetch 重试购买，buy 没有幂等键",
+      "detected": true,
+      "rank": 1
+     },
+     {
+      "id": "d4",
+      "what": "spend_gold 写 players 和 ledger 没有事务",
+      "detected": true,
+      "rank": 4
+     },
+     {
+      "id": "d5",
+      "what": "spend_gold 返回 None，buy 把它变成 200 {}",
+      "detected": true,
+      "rank": 6
+     },
+     {
+      "id": "d6",
+      "what": "hud 监听 gold_changed，但没有人发出",
+      "detected": true,
+      "rank": 11
+     },
+     {
+      "id": "d7",
+      "what": "客户端调用 /api/match/report，服务端没有路由",
+      "detected": true,
+      "rank": 7
+     }
+    ],
+    "common_cause": [
+     {
+      "id": "cc1",
+      "expect": "ent:state:shop:py/gold",
+      "rank": 1,
+      "top3": [
+       "ent:state:shop:py/gold",
+       "ent:table:main:ledger",
+       "ent:state:shop:py/matches_played"
+      ]
+     },
+     {
+      "id": "cc2",
+      "expect": "ent:symbol:shop:server/wallet.py#add_gold",
+      "rank": 7,
+      "top3": [
+       "ent:state:shop:py/matches_played",
+       "ent:state:shop:py/gold",
+       "ent:table:main:ledger"
+      ]
+     },
+     {
+      "id": "cc3",
+      "expect": "ent:state:shop:py/gold",
+      "rank": 1,
+      "top3": [
+       "ent:state:shop:py/gold",
+       "ent:table:main:ledger",
+       "ent:state:shop:py/matches_played"
+      ]
+     }
+    ],
+    "impact": [
+     {
+      "id": "im1",
+      "recall": 1.0,
+      "missing": []
+     },
+     {
+      "id": "im2",
+      "recall": 1.0,
+      "missing": []
+     }
+    ]
+   }
+  ],
+  "agent": [
+   {
+    "id": "buy-does-nothing",
+    "kind": "agent",
+    "summary": {
+     "runs": 2,
+     "root_cause": 0.5,
+     "false_facts": 0,
+     "coverage": 0.75,
+     "defects_present": 5,
+     "defects_caught": 0,
+     "catch_rate": 0.0,
+     "false_alarms": 0,
+     "model_calls": 13,
+     "tokens": 10478
+    },
+    "runs": [
+     {
+      "policy": "careful_basic",
+      "mode": "basic",
+      "outcome": "done",
+      "root_cause": 0.5,
+      "false_facts": 0,
+      "coverage": 1.0,
+      "defects": [
+       "unsupported_conclusion"
+      ],
+      "flagged": [],
+      "caught": [],
+      "false_alarms": [],
+      "tasks": 1,
+      "cost": {
+       "model_calls": 8,
+       "input_tokens": 6496,
+       "output_tokens": 400,
+       "steps": 8
+      },
+      "claims": [
+       {
+        "type": "hypothesis",
+        "status": "proposed",
+        "subject": "spend_gold",
+        "relation": "causes",
+        "object": "buy"
+       },
+       {
+        "type": "hypothesis",
+        "status": "proposed",
+        "subject": "buy",
+        "relation": "causes",
+        "object": "ShopUI.onBuyClick"
+       },
+       {
+        "type": "hypothesis",
+        "status": "withdrawn",
+        "subject": "gold_changed",
+        "relation": "causes",
+        "object": "ShopUI.onBuyClick"
+       }
+      ]
+     },
+     {
+      "policy": "competing_open",
+      "mode": "basic",
+      "outcome": "done",
+      "root_cause": 0.5,
+      "false_facts": 0,
+      "coverage": 0.5,
+      "defects": [
+       "chain_gap",
+       "competing_open",
+       "false_lead_asserted",
+       "unsupported_conclusion"
+      ],
+      "flagged": [],
+      "caught": [],
+      "false_alarms": [],
+      "tasks": 1,
+      "cost": {
+       "model_calls": 5,
+       "input_tokens": 3332,
+       "output_tokens": 250,
+       "steps": 5
+      },
+      "claims": [
+       {
+        "type": "hypothesis",
+        "status": "proposed",
+        "subject": "spend_gold",
+        "relation": "causes",
+        "object": "buy"
+       },
+       {
+        "type": "hypothesis",
+        "status": "proposed",
+        "subject": "gold_changed",
+        "relation": "causes",
+        "object": "ShopUI.onBuyClick"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "reconnect-double-reward",
+    "kind": "agent",
+    "summary": {
+     "runs": 2,
+     "root_cause": 0.5,
+     "false_facts": 0,
+     "coverage": 0.5,
+     "defects_present": 2,
+     "defects_caught": 0,
+     "catch_rate": 0.0,
+     "false_alarms": 0,
+     "model_calls": 16,
+     "tokens": 17159
+    },
+    "runs": [
+     {
+      "policy": "careful_cluster",
+      "mode": "cluster",
+      "outcome": "done",
+      "root_cause": 1.0,
+      "false_facts": 0,
+      "coverage": 1.0,
+      "defects": [],
+      "flagged": [],
+      "caught": [],
+      "false_alarms": [],
+      "tasks": 4,
+      "cost": {
+       "model_calls": 13,
+       "input_tokens": 14693,
+       "output_tokens": 650,
+       "steps": 13
+      },
+      "claims": [
+       {
+        "type": "hypothesis",
+        "status": "supported",
+        "subject": "reconnect",
+        "relation": "causes",
+        "object": "gold"
+       }
+      ]
+     },
+     {
+      "policy": "jumps_to_conclusion",
+      "mode": "basic",
+      "outcome": "done",
+      "root_cause": 0.0,
+      "false_facts": 0,
+      "coverage": 0.0,
+      "defects": [
+       "false_lead_asserted",
+       "unsupported_conclusion"
+      ],
+      "flagged": [],
+      "caught": [],
+      "false_alarms": [],
+      "tasks": 1,
+      "cost": {
+       "model_calls": 3,
+       "input_tokens": 1666,
+       "output_tokens": 150,
+       "steps": 3
+      },
+      "claims": [
+       {
+        "type": "hypothesis",
+        "status": "proposed",
+        "subject": "finishMatch",
+        "relation": "causes",
+        "object": "gold"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "summary": {
+   "agent": {
+    "runs": 4,
+    "root_cause": 0.5,
+    "false_facts": 0,
+    "coverage": 0.625,
+    "defects_present": 7,
+    "defects_caught": 0,
+    "catch_rate": 0.0,
+    "false_alarms": 0,
+    "model_calls": 29,
+    "tokens": 27637
+   }
+  }
+ }
+}

@@ -1,0 +1,10 @@
+{
+  "description": "Span attribute check.",
+  "schema": "evidence/predicate.schema.json",
+  "expect": "valid",
+  "instance": {
+    "op": "attr_equals",
+    "attr": "cd.ui.settle.result",
+    "value": "no_change"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/claim/entity-ref.schema.json",
+  "title": "Entity reference v0",
+  "description": "Canonical id of a thing in the system model: 'ent:<type>:<key>'. Claims from different agents that name the same entity use the same string, so the coupling graph can join them mechanically without a model reading prose. Routes use templated paths ('/items/{id}', never ':id'); ingest normalizes framework-specific syntax.",
+  "anyOf": [
+    { "$ref": "#/$defs/service" },
+    { "$ref": "#/$defs/route" },
+    { "$ref": "#/$defs/symbol" },
+    { "$ref": "#/$defs/file" },
+    { "$ref": "#/$defs/table" },
+    { "$ref": "#/$defs/column" },
+    { "$ref": "#/$defs/state" },
+    { "$ref": "#/$defs/ws_msg" },
+    { "$ref": "#/$defs/event" },
+    { "$ref": "#/$defs/job" },
+    { "$ref": "#/$defs/ui" },
+    { "$ref": "#/$defs/external" },
+    { "$ref": "#/$defs/invariant" },
+    { "$ref": "#/$defs/stage" }
+  ],
+  "$defs": {
+    "service": { "type": "string", "pattern": "^ent:service:[a-z0-9][a-z0-9._-]{0,127}$" },
+    "route": {
+      "description": "ent:route:<service>:<METHOD>:<templated path>",
+      "type": "string",
+      "pattern": "^ent:route:[a-z0-9][a-z0-9._-]{0,127}:[A-Z_]{1,16}:/[^\\s:]{0,1023}$"
+    },
+    "symbol": {
+      "description": "ent:symbol:<service>:<repo path>#<qualified name>",
+      "type": "string",
+      "pattern": "^ent:symbol:[a-z0-9][a-z0-9._-]{0,127}:(?!(?:\\.|%2[eE])+(?:/|#|@|$))[^/:#@\\s\\\\]+(?:/(?!(?:\\.|%2[eE])+(?:/|#|@|$))[^/:#@\\s\\\\]+)*#[A-Za-z0-9_$.<>~%-]{1,512}$"
+    },
+    "file": {
+      "type": "string",
+      "pattern": "^ent:file:[a-z0-9][a-z0-9._-]{0,127}:(?!(?:\\.|%2[eE])+(?:/|#|@|$))[^/:#@\\s\\\\]+(?:/(?!(?:\\.|%2[eE])+(?:/|#|@|$))[^/:#@\\s\\\\]+)*$"
+    },
+    "table": {
+      "description": "ent:table:<database>:<table>",
+      "type": "string",
+      "pattern": "^ent:table:[A-Za-z0-9_.-]{1,128}:[A-Za-z0-9_$]{1,128}$"
+    },
+    "column": {
+      "description": "ent:column:<database>:<table>.<column>",
+      "type": "string",
+      "pattern": "^ent:column:[A-Za-z0-9_.-]{1,128}:[A-Za-z0-9_$]{1,128}\\.[A-Za-z0-9_$]{1,128}$"
+    },
+    "state": {
+      "description": "ent:state:<service>:<store>/<key> - in-memory or client state (redux slice, game state field, cache key pattern).",
+      "type": "string",
+      "pattern": "^ent:state:[a-z0-9][a-z0-9._-]{0,127}:[^\\s:]{1,256}/[^\\s:]{1,512}$"
+    },
+    "ws_msg": { "type": "string", "pattern": "^ent:ws_msg:[a-z0-9][a-z0-9._-]{0,127}:[^\\s:]{1,256}$" },
+    "event": {
+      "description": "ent:event:<service>:<name> - an in-process event on an event bus / emitter (emit('x') / on('x')).",
+      "type": "string",
+      "pattern": "^ent:event:[a-z0-9][a-z0-9._-]{0,127}:[^\\s:]{1,256}$"
+    },
+    "job": { "type": "string", "pattern": "^ent:job:[a-z0-9][a-z0-9._-]{0,127}:[^\\s:]{1,256}$" },
+    "ui": {
+      "description": "ent:ui:<service>:<component name or percent-encoded selector>",
+      "type": "string",
+      "pattern": "^ent:ui:[a-z0-9][a-z0-9._-]{0,127}:[^\\s:]{1,1024}$"
+    },
+    "external": { "type": "string", "pattern": "^ent:external:[a-z0-9.-]{1,253}(:[0-9]{1,5})?$" },
+    "invariant": {
+      "description": "A business rule, e.g. ent:invariant:gold-conservation.",
+      "type": "string",
+      "pattern": "^ent:invariant:[a-z0-9][a-z0-9._-]{0,127}$"
+    },
+    "stage": {
+      "description": "ent:stage:<template id without 'tpl:'>/<stage id>",
+      "type": "string",
+      "pattern": "^ent:stage:[a-z0-9][a-z0-9._-]{0,127}/[a-z0-9][a-z0-9_-]{0,63}$"
+    }
+  }
+}

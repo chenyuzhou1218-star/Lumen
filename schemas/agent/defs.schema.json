@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/agent/defs.schema.json",
+  "title": "Agent shared definitions v0",
+  "$defs": {
+    "agentId": {
+      "description": "User-chosen agent name, unique in a project. 'user' and 'system' are reserved participants, not agents.",
+      "type": "string",
+      "pattern": "^(?!user$)(?!system$)[a-z][a-z0-9_-]{0,63}$"
+    },
+    "participant": {
+      "description": "Sender or recipient of a message.",
+      "anyOf": [
+        { "$ref": "#/$defs/agentId" },
+        { "enum": ["user", "system"] }
+      ]
+    },
+    "role": {
+      "description": "general: the single agent of basic mode. head_logic / head_dispatch: the two heads of cluster mode. worker / guardian / investigator / compressor: cluster roles.",
+      "enum": ["general", "head_logic", "head_dispatch", "worker", "guardian", "investigator", "compressor"]
+    },
+    "taskId": { "type": "string", "pattern": "^task_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "messageId": { "type": "string", "pattern": "^msg_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "threadId": { "type": "string", "pattern": "^thr_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "reviewId": { "type": "string", "pattern": "^rev_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "endpointId": {
+      "description": "Id of a user-configured model endpoint profile (schemas/config). Never contains a key or URL.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+    }
+  }
+}

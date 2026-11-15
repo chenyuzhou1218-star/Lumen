@@ -1,0 +1,70 @@
+# Code Doctor cluster mode: dispatch head + logic head + workers + paired guardians.
+# Every agent's model is your choice; mix cheap, flagship and local models freely.
+#   codedoctor-gui --config examples/cluster-mode.toml      then pick "head-dispatch" in the window
+
+cd_schema = "cd.config.project/0"
+
+[project]
+name = "my-project"
+root = "D:/path/to/your/project"
+code_data_class = "internal"
+
+[[endpoints]]
+id = "deepseek"
+kind = "openai_compatible"
+base_url = "https://api.deepseek.com/v1"
+api_key_env = "DEEPSEEK_API_KEY"
+local = false
+max_concurrency = 4
+
+[[endpoints]]
+id = "local-ollama"
+kind = "openai_compatible"
+base_url = "http://127.0.0.1:11434/v1"
+local = true
+max_concurrency = 1
+
+[[agents]]
+id = "head-dispatch"
+role = "head_dispatch"
+endpoint = "deepseek"
+model = "deepseek-chat"
+
+[[agents]]
+id = "head-logic"
+role = "head_logic"
+endpoint = "deepseek"
+model = "deepseek-chat"
+
+[[agents]]
+id = "worker-1"
+role = "worker"
+endpoint = "deepseek"
+model = "deepseek-chat"
+
+[[agents]]
+id = "worker-2"
+role = "worker"
+endpoint = "deepseek"
+model = "deepseek-chat"
+
+[[agents]]
+id = "guardian-1"
+role = "guardian"
+endpoint = "local-ollama"          # e.g. a local model as an independent second opinion
+model = "qwen3:4b-instruct-2507-q4_K_M"
+supervises = "worker-1"
+
+[[agents]]
+id = "guardian-2"
+role = "guardian"
+endpoint = "deepseek"
+model = "deepseek-chat"
+supervises = "worker-2"
+
+[permissions]
+run_command = "deny"
+
+[defaults]
+budget = { max_steps = 40, max_tokens = 400000 }
+stall_steps = 6

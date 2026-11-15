@@ -1,0 +1,24 @@
+{
+  "description": "An agent cannot promote its own (or any) claim; only the rule engine can.",
+  "schema": "claim/status-event.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "const",
+    "path": "/by"
+  },
+  "instance": {
+    "cd_schema": "cd.claim.status-event/0",
+    "claim_id": "clm_01JB8Z8000000000000000CM01",
+    "from": "proposed",
+    "to": "supported",
+    "at": "2026-10-24T12:10:00Z",
+    "by": "doctor",
+    "rule": "promote_supported",
+    "basis": {
+      "validation": "val_01JB8ZC000000000000000VA01",
+      "reviews": [
+        "rev_01JB8Z2000000000000000RV07"
+      ]
+    }
+  }
+}

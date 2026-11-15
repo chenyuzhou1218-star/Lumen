@@ -1,0 +1,19 @@
+{
+  "description": "User cancels a task.",
+  "schema": "agent/message.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.agent.message/0",
+    "id": "msg_01JB8Z3000000000000000MS04",
+    "thread_id": "thr_01JB8Z3000000000000000TH01",
+    "from": "user",
+    "to": "doctor",
+    "kind": "control",
+    "created_at": "2026-10-24T11:06:00Z",
+    "body": {
+      "command": "cancel_task",
+      "task_id": "task_01JB8Z2000000000000000TK01",
+      "reason": "enough"
+    }
+  }
+}

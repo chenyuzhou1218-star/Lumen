@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/event/coverage-status.schema.json",
+  "title": "Observation coverage status v0",
+  "description": "The observation coverage list: for every service x layer (and every business stage of every chain template), whether it is observed and whether that observation is currently trustworthy. Computed from coverage declarations and telemetry health reports. Only rows in 'healthy' can support a conclusion that something did not happen.",
+  "type": "object",
+  "required": ["cd_schema", "computed_at", "rows"],
+  "properties": {
+    "cd_schema": { "const": "cd.event.coverage-status/0" },
+    "computed_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "rows": { "type": "array", "items": { "$ref": "#/$defs/row" } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "row": {
+      "type": "object",
+      "required": ["service", "layer", "status", "reason"],
+      "properties": {
+        "service": { "$ref": "../common/defs.schema.json#/$defs/serviceName" },
+        "layer": { "$ref": "../common/defs.schema.json#/$defs/layer" },
+        "template": { "type": "string", "pattern": "^tpl:[a-z0-9][a-z0-9._-]{0,127}$" },
+        "stage": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$" },
+        "status": {
+          "description": "healthy (正常采集): declared and recent health reports show no loss. degraded (采集异常): drops, export failures, missed heartbeats or sampling below 100% without recorded decisions. declared (已接入): declared but no health report yet or reports stopped. not_instrumented (未接入): nothing observes it.",
+          "enum": ["healthy", "degraded", "declared", "not_instrumented"]
+        },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "probe_id": { "type": "string", "pattern": "^prb_[0-9A-HJKMNP-TV-Z]{26}$" },
+        "coverage": { "$ref": "../evidence/evidence-id.schema.json#/$defs/coverage" },
+        "health": { "$ref": "../evidence/evidence-id.schema.json#/$defs/health" },
+        "last_report_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        { "if": { "properties": { "status": { "const": "healthy" } } }, "then": { "required": ["probe_id", "coverage", "health"] } },
+        { "if": { "properties": { "status": { "enum": ["degraded", "declared"] } } }, "then": { "required": ["probe_id", "coverage"] } },
+        { "if": { "properties": { "status": { "const": "not_instrumented" } } }, "then": { "not": { "anyOf": [{ "required": ["probe_id"] }, { "required": ["health"] }] } } }
+      ]
+    }
+  }
+}

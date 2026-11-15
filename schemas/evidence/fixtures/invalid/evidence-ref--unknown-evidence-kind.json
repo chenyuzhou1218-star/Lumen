@@ -1,0 +1,26 @@
+{
+  "description": "Evidence ids have a closed set of kinds.",
+  "schema": "evidence/evidence-ref.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "anyOf",
+    "path": "/id"
+  },
+  "instance": {
+    "id": "ev:hunch:trust-me",
+    "role": "supports",
+    "shows": "UI did not change within 1s after clicking Buy",
+    "assert": [
+      {
+        "op": "attr_equals",
+        "attr": "cd.ui.settle.result",
+        "value": "no_change"
+      }
+    ],
+    "expect_binding": {
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+      "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+      "action_id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W"
+    }
+  }
+}

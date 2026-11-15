@@ -1,0 +1,37 @@
+{
+  "description": "settled state must cite the settle span.",
+  "schema": "event/action.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "required",
+    "message_contains": "settle"
+  },
+  "instance": {
+    "cd_schema": "cd.event.action/0",
+    "id": "ev:action:01JB8Z4K3M5N6P7Q8R9S0T1V2W",
+    "action_id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W",
+    "root": "ev:span:4bf92f3577b34da6a3ce929d0e0e4736/a1b2c3d4e5f60718",
+    "action_type": "click",
+    "target": {
+      "selector": "#shop [data-item=sword] button.buy",
+      "text": "Buy",
+      "component": "ShopItemCard"
+    },
+    "start_time_unix_nano": "1761300000000000000",
+    "end_time_unix_nano": "1761300001180000000",
+    "state": "settled",
+    "traces": [
+      {
+        "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+        "joined_by": "root",
+        "strength": "exact"
+      }
+    ],
+    "template": {
+      "id": "tpl:shop.buy",
+      "version": 3
+    },
+    "assembled_at": "2026-10-24T09:10:07Z",
+    "assembler": "trace.assemble/0.1.0"
+  }
+}

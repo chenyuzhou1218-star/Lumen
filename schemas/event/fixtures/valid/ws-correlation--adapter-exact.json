@@ -1,0 +1,23 @@
+{
+  "description": "App sequence number matched exactly one frame.",
+  "schema": "event/ws-correlation.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.event.ws-correlation/0",
+    "id": "ev:corr:01JB8Z7000000000000000CR01",
+    "method": "adapter",
+    "send": "ev:span:5d4c3b2a19087f6e5d4c3b2a19087f6e/0a1b2c3d4e5f6071",
+    "recv": "ev:span:7c2f0e9a41d84b6f9a3e5d1c0b8a7f62/1a1b2c3d4e5f6071",
+    "connection_id": "conn-42",
+    "basis": {
+      "msg_key": "seq:1907",
+      "adapter": "arena_seq"
+    },
+    "strength": "exact",
+    "candidates_considered": 1,
+    "match_window_ms": 2000,
+    "clock_skew_bound_ms": 3,
+    "evidence_level": "observed",
+    "assessed_at": "2026-10-24T09:10:06Z"
+  }
+}

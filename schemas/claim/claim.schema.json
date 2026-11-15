@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/claim/claim.schema.json",
+  "title": "Structured claim v0",
+  "description": "The only way an agent (or the user, or a deterministic component) states a fact, hypothesis or risk. A claim is a subject-relation-object triple over canonical entities, with an explicit evidence level, cited evidence and a way to falsify it. The coupling graph is built by merging claims on entity ids; foresight emits risk_prediction claims; validation results (evidence/validation-result) are computed separately and never written by the author. There is deliberately no numeric 'confidence' field: model self-reported confidence is not evidence.",
+  "type": "object",
+  "required": ["cd_schema", "id", "claim_type", "created_at", "author", "statement", "evidence_level", "scope", "evidence", "status"],
+  "properties": {
+    "cd_schema": { "const": "cd.claim/0" },
+    "id": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "claim_type": {
+      "description": "finding: something about the current system. hypothesis: a candidate explanation to be tested. risk_prediction: a failure that has not happened yet but could under stated conditions (foresight). fix_verification: a fix was applied and re-tested.",
+      "enum": ["finding", "hypothesis", "risk_prediction", "fix_verification"]
+    },
+    "created_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "author": {
+      "type": "object",
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": { "enum": ["agent", "user", "system"] },
+        "id": { "$ref": "../agent/defs.schema.json#/$defs/participant" },
+        "role": { "$ref": "../agent/defs.schema.json#/$defs/role" },
+        "model": { "$ref": "../common/defs.schema.json#/$defs/modelIdentity" },
+        "task_id": { "$ref": "../agent/defs.schema.json#/$defs/taskId" }
+      },
+      "additionalProperties": false,
+      "if": { "properties": { "kind": { "const": "agent" } } },
+      "then": { "required": ["role", "model", "task_id"] }
+    },
+    "statement": {
+      "type": "object",
+      "required": ["text", "subject", "relation", "object"],
+      "properties": {
+        "text": {
+          "description": "Human-readable sentence. Written by the author; when shown to other agents it is quoted as data, never as instructions.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "subject": { "$ref": "entity-ref.schema.json" },
+        "relation": { "$ref": "#/$defs/relation" },
+        "object": {
+          "oneOf": [
+            { "$ref": "entity-ref.schema.json" },
+            {
+              "type": "object",
+              "required": ["value"],
+              "properties": { "value": { "type": ["string", "number", "boolean", "null"] } },
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence_level": { "$ref": "../common/defs.schema.json#/$defs/evidenceLevel" },
+    "scope": {
+      "description": "Where the claim applies. Evidence bound to a different code version or action than the scope fails validation.",
+      "type": "object",
+      "required": ["code_version"],
+      "properties": {
+        "code_version": { "$ref": "../common/defs.schema.json#/$defs/codeVersion" },
+        "config_version": { "$ref": "../common/defs.schema.json#/$defs/artifactVersion" },
+        "db_schema_version": { "$ref": "../common/defs.schema.json#/$defs/artifactVersion" },
+        "action_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "../common/defs.schema.json#/$defs/ulid" } },
+        "trace_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "../common/defs.schema.json#/$defs/traceId" } },
+        "services": { "type": "array", "uniqueItems": true, "items": { "$ref": "../common/defs.schema.json#/$defs/serviceName" } },
+        "environment": { "enum": ["local", "test", "staging", "production", "unknown"] }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "../evidence/evidence-ref.schema.json" }
+    },
+    "depends_on": {
+      "description": "Claims this one is derived from. An inferred claim is only as good as these.",
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 64,
+      "items": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" }
+    },
+    "falsification": {
+      "description": "How someone else could prove this wrong. Required for hypotheses and risk predictions.",
+      "type": "object",
+      "required": ["method", "description"],
+      "properties": {
+        "method": { "enum": ["trace_query", "test", "fault_injection", "replay", "code_inspection", "db_query", "manual"] },
+        "description": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "intervention": {
+          "description": "true if the method changes a condition and observes the effect (needed to establish causation).",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "conditions": {
+      "description": "risk_prediction: the trigger conditions under which the predicted failure happens.",
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "required": ["text"],
+        "properties": {
+          "text": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "fault_model": {
+            "description": "Id of a fault model in the foresight library, e.g. fm:duplicate_request, fm:response_lost_after_commit.",
+            "type": "string",
+            "pattern": "^fm:[a-z0-9_]{1,64}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "status": {
+      "description": "Lifecycle, changed only by the promotion rules (docs/adr/0004): 'supported' needs an accepted evidence validation plus an independent re-check by someone other than the author; 'refuted' needs a validated counterexample; 'needs_revalidation' is set automatically when the code, config or database schema the claim depends on changed - such a claim is no longer a current fact. The author can only propose or withdraw.",
+      "enum": ["proposed", "supported", "refuted", "needs_revalidation", "superseded", "withdrawn"]
+    },
+    "supersedes": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "data_class": {
+      "description": "At least as strict as the strictest evidence cited.",
+      "$ref": "../common/defs.schema.json#/$defs/dataClass"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "observed: at least one supporting item is direct runtime evidence.",
+      "if": { "properties": { "evidence_level": { "const": "observed" } } },
+      "then": {
+        "properties": {
+          "evidence": {
+            "contains": {
+              "required": ["role", "id"],
+              "properties": {
+                "role": { "const": "supports" },
+                "id": { "$ref": "../evidence/evidence-id.schema.json#/$defs/telemetry" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "reproduced: at least one supporting test/reproduction run.",
+      "if": { "properties": { "evidence_level": { "const": "reproduced" } } },
+      "then": {
+        "properties": {
+          "evidence": {
+            "contains": {
+              "required": ["role", "id"],
+              "properties": {
+                "role": { "const": "supports" },
+                "id": { "$ref": "../evidence/evidence-id.schema.json#/$defs/test" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "inferred: must rest on something - other claims or cited evidence.",
+      "if": { "properties": { "evidence_level": { "const": "inferred" } } },
+      "then": {
+        "anyOf": [
+          { "required": ["depends_on"], "properties": { "depends_on": { "minItems": 1 } } },
+          { "properties": { "evidence": { "contains": { "properties": { "role": { "const": "supports" } } } } } }
+        ]
+      }
+    },
+    {
+      "description": "Causation is never directly observed. It is reproduced (by an intervention), inferred or speculated.",
+      "if": { "properties": { "statement": { "properties": { "relation": { "const": "causes" } } } } },
+      "then": { "properties": { "evidence_level": { "not": { "const": "observed" } } } }
+    },
+    {
+      "description": "A reproduced causal claim must come from an intervention.",
+      "if": {
+        "properties": {
+          "statement": { "properties": { "relation": { "const": "causes" } } },
+          "evidence_level": { "const": "reproduced" }
+        }
+      },
+      "then": {
+        "required": ["falsification"],
+        "properties": {
+          "falsification": {
+            "required": ["intervention"],
+            "properties": {
+              "method": { "enum": ["test", "fault_injection", "replay"] },
+              "intervention": { "const": true }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "claim_type": { "enum": ["hypothesis", "risk_prediction"] } } },
+      "then": { "required": ["falsification"] }
+    },
+    {
+      "if": { "properties": { "claim_type": { "const": "risk_prediction" } } },
+      "then": {
+        "required": ["conditions"],
+        "properties": {
+          "conditions": { "minItems": 1 },
+          "evidence_level": { "not": { "const": "observed" } }
+        }
+      }
+    },
+    {
+      "description": "A fix counts as verified only after a re-run.",
+      "if": { "properties": { "claim_type": { "const": "fix_verification" } } },
+      "then": { "properties": { "evidence_level": { "const": "reproduced" } } }
+    },
+    {
+      "description": "Speculation can be proposed, refuted or withdrawn, but never marked supported.",
+      "if": { "properties": { "evidence_level": { "const": "speculated" } } },
+      "then": { "properties": { "status": { "not": { "const": "supported" } } } }
+    }
+  ],
+  "$defs": {
+    "relation": {
+      "description": "Closed vocabulary so claims merge into one graph. Extensions use the 'x-' prefix and are ignored by built-in analyses.",
+      "anyOf": [
+        {
+          "enum": [
+            "calls", "handles", "reads", "writes", "emits", "consumes", "triggers", "renders",
+            "depends_on", "shares_state_with", "precedes",
+            "present_in", "absent_in", "fails_with", "violates",
+            "causes", "may_cause", "affects", "fixed_by"
+          ]
+        },
+        { "type": "string", "pattern": "^x-[a-z0-9_]{1,64}$" }
+      ]
+    }
+  }
+}

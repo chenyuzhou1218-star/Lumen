@@ -1,0 +1,68 @@
+{
+  "description": "Causal hypothesis: inferred, with an intervention to falsify it.",
+  "schema": "claim/claim.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.claim/0",
+    "id": "clm_01JB8Z8000000000000000CM02",
+    "claim_type": "hypothesis",
+    "created_at": "2026-10-24T09:14:00Z",
+    "author": {
+      "kind": "agent",
+      "id": "head-logic",
+      "role": "head_logic",
+      "model": {
+        "provider": "deepseek",
+        "model": "deepseek-chat"
+      },
+      "task_id": "task_01JB8Z2000000000000000TK01"
+    },
+    "statement": {
+      "text": "The stale inventory_version check in ShopService.buy causes the early return that skips the orders write.",
+      "subject": "ent:symbol:shop-api:server/shop.py#ShopService.buy",
+      "relation": "causes",
+      "object": "ent:stage:shop.buy/db-write"
+    },
+    "evidence_level": "inferred",
+    "scope": {
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+      "action_ids": [
+        "01JB8Z4K3M5N6P7Q8R9S0T1V2W"
+      ],
+      "services": [
+        "shop-api"
+      ]
+    },
+    "evidence": [
+      {
+        "id": "ev:code:9fceb02d0ae598e95dc970b74767f19372d61af8:server/shop.py#ShopService.buy@42d05c02eaa9ba3633aed262f62090a10fa622ce5fe46870d92b7000969cd4dd:L42-L61",
+        "role": "supports",
+        "shows": "buy() returns early when inventory_version differs, before writing orders",
+        "assert": [
+          {
+            "op": "text_contains",
+            "text": "if inventory_version != player.inventory_version"
+          }
+        ],
+        "locator": {
+          "line_start": 47,
+          "line_end": 49
+        }
+      },
+      {
+        "id": "ev:log:aa73523228365aa556f0faf05a8d875354e70201714797f60e49bbf1e0e92da7:L2210-L2214",
+        "role": "context",
+        "shows": "server logged a version mismatch at the same time"
+      }
+    ],
+    "depends_on": [
+      "clm_01JB8Z8000000000000000CM01"
+    ],
+    "falsification": {
+      "method": "test",
+      "intervention": true,
+      "description": "Replay the click with inventory_version forced equal; the orders INSERT should then appear."
+    },
+    "status": "proposed"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "tower_guard",
+  "script": "game.js",
+  "title": "守塔"
+}

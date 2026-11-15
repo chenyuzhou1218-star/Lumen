@@ -1,0 +1,18 @@
+{
+  "description": "User asks to continue an interrupted task.",
+  "schema": "agent/message.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.agent.message/0",
+    "id": "msg_01JB8Z3000000000000000MS09",
+    "thread_id": "thr_01JB8Z3000000000000000TH01",
+    "from": "user",
+    "to": "doctor",
+    "kind": "control",
+    "created_at": "2026-10-24T12:30:00Z",
+    "body": {
+      "command": "resume_task",
+      "task_id": "task_01JB8Z2000000000000000TK01"
+    }
+  }
+}

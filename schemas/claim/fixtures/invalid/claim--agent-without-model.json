@@ -1,0 +1,79 @@
+{
+  "description": "Agent claims record which model produced them.",
+  "schema": "claim/claim.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "required",
+    "message_contains": "model"
+  },
+  "instance": {
+    "cd_schema": "cd.claim/0",
+    "id": "clm_01JB8Z8000000000000000CM01",
+    "claim_type": "finding",
+    "created_at": "2026-10-24T09:12:00Z",
+    "author": {
+      "kind": "agent",
+      "id": "worker-backend",
+      "role": "worker",
+      "task_id": "task_01JB8Z2000000000000000TK01"
+    },
+    "statement": {
+      "text": "Clicking Buy reaches ShopService.buy, but the orders INSERT never happens and the UI does not change.",
+      "subject": "ent:stage:shop.buy/db-write",
+      "relation": "absent_in",
+      "object": {
+        "value": "01JB8Z4K3M5N6P7Q8R9S0T1V2W"
+      }
+    },
+    "evidence_level": "observed",
+    "scope": {
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+      "action_ids": [
+        "01JB8Z4K3M5N6P7Q8R9S0T1V2W"
+      ],
+      "trace_ids": [
+        "4bf92f3577b34da6a3ce929d0e0e4736"
+      ],
+      "services": [
+        "shop-web",
+        "shop-api"
+      ],
+      "environment": "local"
+    },
+    "evidence": [
+      {
+        "id": "ev:gap:01JB8Z6000000000000000GP01",
+        "role": "supports",
+        "shows": "orders INSERT confirmed absent",
+        "assert": [
+          {
+            "op": "gap_verdict",
+            "verdict": "confirmed_absent"
+          }
+        ],
+        "expect_binding": {
+          "action_id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W"
+        }
+      },
+      {
+        "id": "ev:span:4bf92f3577b34da6a3ce929d0e0e4736/f1b2c3d4e5f60718",
+        "role": "supports",
+        "shows": "UI did not change within 1s after clicking Buy",
+        "assert": [
+          {
+            "op": "attr_equals",
+            "attr": "cd.ui.settle.result",
+            "value": "no_change"
+          }
+        ],
+        "expect_binding": {
+          "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+          "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+          "action_id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W"
+        }
+      }
+    ],
+    "status": "proposed",
+    "data_class": "internal"
+  }
+}

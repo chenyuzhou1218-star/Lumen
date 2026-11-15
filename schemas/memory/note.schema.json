@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/memory/note.schema.json",
+  "title": "Memory note v0",
+  "description": "A durable, searchable fact in long-term memory. Notes are the compact layer; the journal (memory/journal-entry) is the complete layer and is never deleted. Every note points back to the journal entries and evidence it came from, so a compressed note can always be checked against the original.",
+  "type": "object",
+  "required": ["cd_schema", "id", "scope", "owner", "kind", "text", "created_at", "sources"],
+  "properties": {
+    "cd_schema": { "const": "cd.memory.note/0" },
+    "id": { "type": "string", "pattern": "^mem_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "scope": {
+      "description": "agent: private to the owner (independent agent memory). project: readable by agents with shared_read.",
+      "enum": ["agent", "project"]
+    },
+    "owner": { "$ref": "../agent/defs.schema.json#/$defs/participant" },
+    "kind": {
+      "description": "fact: something true about the system. decision: something decided and why. observation: something seen during work. todo: an open question or follow-up. summary: a compression of other notes/journal entries. claim: written by the system for a claim submitted during a task; it is exactly as true as that claim's CURRENT status, which recall reads live (docs/adr/0006).",
+      "enum": ["fact", "decision", "observation", "todo", "summary", "claim"]
+    },
+    "text": { "type": "string", "minLength": 1, "maxLength": 20000 },
+    "entities": { "type": "array", "uniqueItems": true, "items": { "$ref": "../claim/entity-ref.schema.json" } },
+    "evidence": { "type": "array", "uniqueItems": true, "items": { "$ref": "../evidence/evidence-id.schema.json" } },
+    "claims": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" } },
+    "code_version": { "$ref": "../common/defs.schema.json#/$defs/codeVersion" },
+    "task_id": { "$ref": "../agent/defs.schema.json#/$defs/taskId" },
+    "sources": {
+      "description": "Journal entry ids (jrn_...) and/or note ids (mem_...) this note was derived from.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^(jrn|mem)_[0-9A-HJKMNP-TV-Z]{26}$" }
+    },
+    "created_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "superseded_by": { "type": "string", "pattern": "^mem_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "pinned": { "type": "boolean" },
+    "data_class": { "$ref": "../common/defs.schema.json#/$defs/dataClass" }
+  },
+  "additionalProperties": false
+}

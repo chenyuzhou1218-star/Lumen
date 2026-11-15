@@ -1,0 +1,17 @@
+{
+  "description": "Cited code changed: the claim is no longer a current fact.",
+  "schema": "claim/status-event.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.claim.status-event/0",
+    "claim_id": "clm_01JB8Z8000000000000000CM01",
+    "from": "supported",
+    "to": "needs_revalidation",
+    "at": "2026-10-25T08:00:00Z",
+    "by": "system",
+    "rule": "stale_code",
+    "basis": {
+      "detail": "server/shop.py lines 6-7 no longer contain the cited excerpt"
+    }
+  }
+}

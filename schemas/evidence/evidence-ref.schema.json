@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/evidence/evidence-ref.schema.json",
+  "title": "Evidence reference v0",
+  "description": "How a claim cites one evidence item: which item, in what role, what the author says it shows (machine-checkable 'assert' preferred), and which code version / trace / action the author believes it belongs to.",
+  "type": "object",
+  "required": ["id", "role", "shows"],
+  "properties": {
+    "id": { "$ref": "evidence-id.schema.json" },
+    "role": { "enum": ["supports", "refutes", "context"] },
+    "shows": {
+      "description": "Short human-readable description written by the citing agent. Untrusted text: displayed, never executed.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "assert": {
+      "description": "Predicates that must all hold on this evidence. Without them, support can only be 'unverified' or confirmed by an independent reviewer.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": { "$ref": "predicate.schema.json" }
+    },
+    "expect_binding": {
+      "description": "The citing author's belief about what this evidence is bound to. Validation fails if the record disagrees (e.g. a log from another code version).",
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "code_version": { "$ref": "../common/defs.schema.json#/$defs/codeVersion" },
+        "trace_id": { "$ref": "../common/defs.schema.json#/$defs/traceId" },
+        "action_id": { "$ref": "../common/defs.schema.json#/$defs/ulid" }
+      },
+      "additionalProperties": false
+    },
+    "locator": {
+      "description": "Narrow to part of the evidence. Lines for text kinds, JSON pointer for JSON kinds.",
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "line_start": { "type": "integer", "minimum": 1 },
+        "line_end": { "type": "integer", "minimum": 1 },
+        "json_pointer": { "type": "string", "pattern": "^(/([^/~]|~[01])*)*$" }
+      },
+      "additionalProperties": false,
+      "dependentRequired": { "line_end": ["line_start"] }
+    }
+  },
+  "additionalProperties": false
+}

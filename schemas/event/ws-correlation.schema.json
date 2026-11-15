@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/event/ws-correlation.schema.json",
+  "title": "WebSocket correlation v0",
+  "description": "Links a ws.send span on one side to the ws.recv span on the other. Works without changing the application protocol: 'adapter' reads an existing message id/sequence, 'digest' matches sha256 of raw frame bytes (text or binary). Only 'envelope' requires the app to accept an extra field.",
+  "type": "object",
+  "required": ["cd_schema", "id", "method", "send", "recv", "connection_id", "strength", "candidates_considered", "match_window_ms", "evidence_level", "assessed_at"],
+  "properties": {
+    "cd_schema": { "const": "cd.event.ws-correlation/0" },
+    "id": { "$ref": "../evidence/evidence-id.schema.json#/$defs/corr" },
+    "method": { "enum": ["envelope", "adapter", "digest"] },
+    "send": { "$ref": "../evidence/evidence-id.schema.json#/$defs/span" },
+    "recv": { "$ref": "../evidence/evidence-id.schema.json#/$defs/span" },
+    "connection_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "basis": {
+      "type": "object",
+      "properties": {
+        "msg_key": { "type": "string", "maxLength": 512 },
+        "digest": { "$ref": "../common/defs.schema.json#/$defs/sha256" },
+        "adapter": { "type": "string", "pattern": "^[a-z0-9_.-]+$" }
+      },
+      "additionalProperties": false
+    },
+    "strength": {
+      "description": "exact: the match is unique by construction (trace context in the message, or a unique app key). probabilistic: other frames could also match (identical payloads, reused sequence numbers).",
+      "enum": ["exact", "probabilistic"]
+    },
+    "candidates_considered": {
+      "description": "How many recv spans satisfied the matching rule inside the window.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "match_window_ms": { "type": "integer", "minimum": 0 },
+    "clock_skew_bound_ms": { "type": "number", "minimum": 0 },
+    "evidence_level": { "enum": ["observed", "inferred"] },
+    "assessed_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "More than one candidate can never be an exact match.",
+      "if": { "properties": { "candidates_considered": { "minimum": 2 } } },
+      "then": { "properties": { "strength": { "const": "probabilistic" } } }
+    },
+    {
+      "if": { "properties": { "strength": { "const": "exact" } } },
+      "then": { "properties": { "evidence_level": { "const": "observed" } } }
+    },
+    {
+      "description": "A probabilistic match is a deduction, not an observation.",
+      "if": { "properties": { "strength": { "const": "probabilistic" } } },
+      "then": { "properties": { "evidence_level": { "const": "inferred" } } }
+    },
+    {
+      "if": { "properties": { "method": { "const": "adapter" } } },
+      "then": { "required": ["basis"], "properties": { "basis": { "required": ["msg_key", "adapter"] } } }
+    },
+    {
+      "if": { "properties": { "method": { "const": "digest" } } },
+      "then": { "required": ["basis"], "properties": { "basis": { "required": ["digest"] } } }
+    }
+  ]
+}

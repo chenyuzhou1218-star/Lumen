@@ -1,0 +1,12 @@
+{
+  "id": "long-investigation",
+  "description": "A long investigation on a small context budget (the user's weak local hardware): two claims early, one withdrawn, then every file read, some twice. At the end, does the request still say which evidence was collected and what each claim's status is now?",
+  "project": "samples/shop-coupling",
+  "name": "shop",
+  "context_budget_tokens": 9000,
+  "task": {"title": "通读结算与购买代码", "instructions": "通读服务端和客户端代码，找出金币相关的问题。"},
+  "early": ["server/session.py", "server/wallet.py"],
+  "files": ["server/app.py", "server/db.py", "server/inventory.py", "server/rewards.py", "server/shop.py",
+            "web/bus.js", "web/hud.js", "web/match.js", "web/net.js", "web/shop.js"],
+  "reread": ["server/session.py", "server/wallet.py", "web/net.js"]
+}

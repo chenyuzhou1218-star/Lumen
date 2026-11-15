@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/event/coverage.schema.json",
+  "title": "Probe coverage declaration v0",
+  "description": "A probe announces, at startup and on every config change, exactly what it observes and how. Without a declaration for a layer, any missing span on that layer is 'not_instrumented', never a program bug.",
+  "type": "object",
+  "required": ["cd_schema", "id", "probe_id", "declared_at", "service", "sdk", "layers", "scope", "sampling", "export", "heartbeat_interval_ms", "propagators", "redaction"],
+  "properties": {
+    "cd_schema": { "const": "cd.event.coverage/0" },
+    "id": { "$ref": "../evidence/evidence-id.schema.json#/$defs/coverage" },
+    "probe_id": { "type": "string", "pattern": "^prb_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "declared_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "service": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "$ref": "../common/defs.schema.json#/$defs/serviceName" },
+        "instance_id": { "type": "string", "maxLength": 256 },
+        "code_version": { "$ref": "../common/defs.schema.json#/$defs/codeVersion" }
+      },
+      "additionalProperties": false
+    },
+    "sdk": {
+      "type": "object",
+      "required": ["name", "version", "language"],
+      "properties": {
+        "name": { "type": "string", "maxLength": 128 },
+        "version": { "type": "string", "maxLength": 64 },
+        "language": { "enum": ["javascript", "typescript", "python", "csharp", "java", "go", "rust", "cpp", "other"] }
+      },
+      "additionalProperties": false
+    },
+    "layers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "../common/defs.schema.json#/$defs/layer" }
+    },
+    "scope": {
+      "description": "Which part of the declared layers is observed. 'listed' means only the listed routes/messages/tables; anything outside is not covered.",
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["all", "listed"] },
+        "http_routes": { "type": "array", "items": { "type": "string", "maxLength": 1024 } },
+        "ws_message_types": { "type": "array", "items": { "type": "string", "maxLength": 256 } },
+        "db_tables": { "type": "array", "items": { "type": "string", "maxLength": 256 } },
+        "ui_selectors": { "type": "array", "items": { "type": "string", "maxLength": 1024 } }
+      },
+      "additionalProperties": false,
+      "if": { "properties": { "mode": { "const": "listed" } } },
+      "then": {
+        "anyOf": [
+          { "required": ["http_routes"] },
+          { "required": ["ws_message_types"] },
+          { "required": ["db_tables"] },
+          { "required": ["ui_selectors"] }
+        ]
+      }
+    },
+    "sampling": {
+      "type": "object",
+      "required": ["strategy", "records_decisions"],
+      "properties": {
+        "strategy": { "enum": ["always_on", "always_off", "ratio", "parent_based_always_on", "parent_based_ratio", "tail", "unknown"] },
+        "ratio": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "records_decisions": {
+          "description": "true if the probe reports per-trace sampling decisions (including 'dropped by sampler'). Needed to prove a missing span was not simply sampled out.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "if": { "properties": { "strategy": { "enum": ["ratio", "parent_based_ratio"] } } },
+      "then": { "required": ["ratio"] }
+    },
+    "export": {
+      "type": "object",
+      "required": ["exporter", "max_queue_size", "scheduled_delay_ms", "flush_on_shutdown"],
+      "properties": {
+        "exporter": { "enum": ["otlp_http", "otlp_grpc", "file", "in_process"] },
+        "max_queue_size": { "type": "integer", "minimum": 1 },
+        "scheduled_delay_ms": { "type": "integer", "minimum": 0 },
+        "max_export_batch_size": { "type": "integer", "minimum": 1 },
+        "flush_on_shutdown": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "heartbeat_interval_ms": { "type": "integer", "minimum": 100 },
+    "propagators": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(tracecontext|baggage|cd_ws_envelope|cd_ws_digest|cd_ws_adapter:[a-z0-9_.-]+|none)$"
+      }
+    },
+    "redaction": {
+      "description": "Redaction policy applied inside the probe, before data leaves the process.",
+      "type": "object",
+      "required": ["policy_id", "captures_bodies"],
+      "properties": {
+        "policy_id": { "type": "string", "maxLength": 128 },
+        "captures_bodies": {
+          "description": "Whether request/response/message bodies are captured at all. Default policy is false.",
+          "type": "boolean"
+        },
+        "extra_sensitive_keys": { "type": "array", "items": { "type": "string", "maxLength": 256 } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

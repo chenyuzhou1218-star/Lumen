@@ -1,0 +1,38 @@
+{
+  "description": "Raw logs are never trusted content, whatever they say.",
+  "schema": "evidence/evidence-record.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "const",
+    "path": "/content_trust"
+  },
+  "instance": {
+    "cd_schema": "cd.evidence.record/0",
+    "id": "ev:log:aa73523228365aa556f0faf05a8d875354e70201714797f60e49bbf1e0e92da7:L2210-L2214",
+    "kind": "log",
+    "created_at": "2026-10-24T09:11:00Z",
+    "content": {
+      "sha256": "42d05c02eaa9ba3633aed262f62090a10fa622ce5fe46870d92b7000969cd4dd",
+      "media_type": "text/x-python",
+      "size_bytes": 1380
+    },
+    "binding": {
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+      "services": [
+        "shop-api"
+      ]
+    },
+    "provenance": {
+      "source": "tool",
+      "collected_by": "graph.index/0.1.0",
+      "agent_id": "worker-backend",
+      "tool_call_id": "tc_0193"
+    },
+    "data_class": "confidential",
+    "redaction": {
+      "applied": false,
+      "policy_id": "default/0"
+    },
+    "content_trust": "system_computed"
+  }
+}

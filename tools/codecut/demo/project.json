@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "width": 640,
+  "height": 360,
+  "fps": 24,
+  "scenes": [
+    {
+      "id": "intro",
+      "kind": "code",
+      "source": "animation.html",
+      "duration": 2
+    },
+    {
+      "id": "video",
+      "kind": "video",
+      "source": "video.mp4",
+      "duration": 2,
+      "volume": 0.4,
+      "overlays": [
+        {
+          "id": "picture",
+          "kind": "code",
+          "source": "animation.html",
+          "duration": 2,
+          "x": 360,
+          "y": 190,
+          "width": 256,
+          "height": 144
+        }
+      ]
+    }
+  ],
+  "audio": [
+    {
+      "id": "music",
+      "kind": "audio",
+      "source": "music.mp3",
+      "duration": 3.5,
+      "start": 0.5,
+      "volume": 0.2
+    }
+  ]
+}

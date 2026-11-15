@@ -1,0 +1,26 @@
+{
+  "description": "A note the system wrote for a claim at the end of a task: one finding, its entities, evidence and the claim id whose live status decides how far it can be trusted.",
+  "schema": "memory/note.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.memory.note/0",
+    "id": "mem_01JB8ZA000000000000000NT03",
+    "scope": "project",
+    "owner": "head-logic",
+    "kind": "claim",
+    "text": "hypothesis (inferred): The stale inventory_version check in ShopService.buy causes the early return that skips the orders write.\nent:symbol:shop-api:server/shop.py#ShopService.buy -causes-> ent:stage:shop.buy/db-write\nFalsify by (test): Replay the click with inventory_version forced equal; the orders INSERT should then appear.",
+    "entities": [
+      "ent:symbol:shop-api:server/shop.py#ShopService.buy",
+      "ent:stage:shop.buy/db-write"
+    ],
+    "claims": [
+      "clm_01JB8Z8000000000000000CM02"
+    ],
+    "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+    "task_id": "task_01JB8Z2000000000000000TK01",
+    "sources": [
+      "jrn_01JB8ZB000000000000000JR21"
+    ],
+    "created_at": "2026-10-24T11:05:00Z"
+  }
+}

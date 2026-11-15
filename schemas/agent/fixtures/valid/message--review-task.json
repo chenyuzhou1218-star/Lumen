@@ -1,0 +1,21 @@
+{
+  "description": "System asks the paired guardian to re-check a worker task.",
+  "schema": "agent/message.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.agent.message/0",
+    "id": "msg_01JB8Z3000000000000000MS20",
+    "thread_id": "thr_01JB8Z3000000000000000TH01",
+    "from": "system",
+    "to": "guardian-1",
+    "kind": "task",
+    "created_at": "2026-10-24T13:00:00Z",
+    "body": {
+      "task_id": "task_01JB8Z2000000000000000TK05",
+      "parent_task_id": "task_01JB8Z2000000000000000TK01",
+      "review_of": "task_01JB8Z2000000000000000TK04",
+      "title": "Review worker-1",
+      "instructions": "Re-check claims"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "description": "Log regex.",
+  "schema": "evidence/predicate.schema.json",
+  "expect": "valid",
+  "instance": {
+    "op": "text_matches",
+    "regex": "inventory_version mismatch: expected [0-9]+"
+  }
+}

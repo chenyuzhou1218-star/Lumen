@@ -1,0 +1,14 @@
+{
+  "description": "The plan cannot omit what an experiment would predict under each hypothesis.",
+  "schema": "cluster/plan.schema.json", "expect": "invalid",
+  "expect_error": { "validator": "required", "message_contains": "predictions" },
+  "instance": {
+    "cd_schema": "cd.cluster.plan/0", "symptoms": ["ent:symbol:shop:system.py#purchase"],
+    "hypotheses": [
+      { "id": "retry", "statement": "Retry", "candidate": "ent:symbol:shop:system.py#purchase" },
+      { "id": "display", "statement": "Display", "candidate": "ent:symbol:shop:system.py#purchase" }
+    ],
+    "checks": [ { "id": "repeat", "scenario": "duplicate", "purpose": "discriminate", "contracts": ["amount"] } ],
+    "repeats": 2, "max_executions": 12
+  }
+}

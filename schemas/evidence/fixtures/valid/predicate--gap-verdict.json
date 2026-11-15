@@ -1,0 +1,9 @@
+{
+  "description": "Gap verdict check.",
+  "schema": "evidence/predicate.schema.json",
+  "expect": "valid",
+  "instance": {
+    "op": "gap_verdict",
+    "verdict": "confirmed_absent"
+  }
+}

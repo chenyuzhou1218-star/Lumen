@@ -1,0 +1,18 @@
+{
+  "description": "Attribute write found in source code.",
+  "schema": "graph/edge.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.graph.edge/0",
+    "src": "ent:symbol:shop:server/wallet.py#add_gold",
+    "rel": "writes",
+    "dst": "ent:state:shop:attr/gold",
+    "provenance": "static",
+    "resolution": "heuristic",
+    "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+    "location": {
+      "path": "server/wallet.py",
+      "line": 4
+    }
+  }
+}

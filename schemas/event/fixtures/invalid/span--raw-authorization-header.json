@@ -1,0 +1,38 @@
+{
+  "description": "Raw credential in an attribute is rejected.",
+  "schema": "event/span.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "pattern",
+    "path": "/attributes/http.request.header.authorization"
+  },
+  "instance": {
+    "cd_schema": "cd.event.span/0",
+    "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+    "span_id": "c1b2c3d4e5f60718",
+    "parent_span_id": "b1b2c3d4e5f60718",
+    "name": "POST /api/shop/buy",
+    "cd_kind": "http.server",
+    "otel_kind": "server",
+    "start_time_unix_nano": "1761300000010000000",
+    "end_time_unix_nano": "1761300000170000000",
+    "status": {
+      "code": "unset"
+    },
+    "service": {
+      "name": "shop-api",
+      "instance_id": "api-1",
+      "version": "0.4.2",
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+    },
+    "probe_id": "prb_01JB8Z0000000000000000APYX",
+    "attributes": {
+      "cd.action.id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W",
+      "http.request.method": "POST",
+      "http.route": "/api/shop/buy",
+      "http.response.status_code": 200,
+      "http.request.header.authorization": "Bearer eyJhbGciOi",
+      "http.request.header.cookie": "cd:redacted"
+    }
+  }
+}

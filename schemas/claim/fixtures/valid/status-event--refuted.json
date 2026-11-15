@@ -1,0 +1,22 @@
+{
+  "description": "Refuted by a validated counterexample.",
+  "schema": "claim/status-event.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.claim.status-event/0",
+    "claim_id": "clm_01JB8Z8000000000000000CM01",
+    "from": "proposed",
+    "to": "refuted",
+    "at": "2026-10-24T12:11:00Z",
+    "by": "system",
+    "rule": "refute_counterexample",
+    "basis": {
+      "reviews": [
+        "rev_01JB8Z2000000000000000RV08"
+      ],
+      "evidence": [
+        "ev:test:01JB8Z9000000000000000TR03/replay"
+      ]
+    }
+  }
+}

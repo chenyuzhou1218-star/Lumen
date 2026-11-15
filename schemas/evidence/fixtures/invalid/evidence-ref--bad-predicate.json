@@ -1,0 +1,26 @@
+{
+  "description": "Predicates are validated too.",
+  "schema": "evidence/evidence-ref.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "oneOf",
+    "path": "/assert/0"
+  },
+  "instance": {
+    "id": "ev:span:4bf92f3577b34da6a3ce929d0e0e4736/f1b2c3d4e5f60718",
+    "role": "supports",
+    "shows": "UI did not change within 1s after clicking Buy",
+    "assert": [
+      {
+        "op": "attr_equals",
+        "attr": "Bad Key",
+        "value": 1
+      }
+    ],
+    "expect_binding": {
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+      "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+      "action_id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W"
+    }
+  }
+}

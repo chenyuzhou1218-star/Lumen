@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/memory/journal-entry.schema.json",
+  "title": "Journal entry v0",
+  "description": "Append-only record of everything an agent did: messages in and out, model calls, tool calls and results, state changes. Never edited, never deleted, never replaced by a summary. Large payloads live in the blob store and are referenced by hash. This is the ground truth for replay, ClawTrace and memory verification.",
+  "type": "object",
+  "required": ["cd_schema", "id", "seq", "agent", "type", "at", "data"],
+  "properties": {
+    "cd_schema": { "const": "cd.memory.journal/0" },
+    "id": { "type": "string", "pattern": "^jrn_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "seq": { "description": "Global monotonic sequence number.", "type": "integer", "minimum": 1 },
+    "agent": { "$ref": "../agent/defs.schema.json#/$defs/participant" },
+    "task_id": { "$ref": "../agent/defs.schema.json#/$defs/taskId" },
+    "type": {
+      "enum": [
+        "message_in", "message_out",
+        "model_request", "model_response", "model_error", "model_switch",
+        "tool_call", "tool_result",
+        "memory_write", "claim_submit",
+        "state_change", "budget_stop", "stall_stop", "test_run", "spend_stop"
+      ]
+    },
+    "at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "data": { "type": "object" },
+    "blob": {
+      "description": "Full payload when it is too large for data (model request/response, long tool output).",
+      "$ref": "../common/defs.schema.json#/$defs/sha256"
+    },
+    "model": { "$ref": "../common/defs.schema.json#/$defs/modelIdentity" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "Model events always record which model was used.",
+      "if": { "properties": { "type": { "enum": ["model_request", "model_response", "model_error", "model_switch"] } } },
+      "then": { "required": ["model"] }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "description": "The user chose a local embedding model for semantic recall; notes never leave the machine.",
+  "schema": "config/project.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.config.project/0",
+    "project": { "name": "shop-demo", "root": "D:/private/shop-demo" },
+    "endpoints": [
+      { "id": "local-ollama", "kind": "openai_compatible", "base_url": "http://127.0.0.1:11434/v1", "local": true }
+    ],
+    "agents": [
+      { "id": "doctor", "role": "general", "endpoint": "local-ollama", "model": "qwen3:4b" }
+    ],
+    "memory": {
+      "embedding": { "endpoint": "local-ollama", "model": "bge-m3", "min_similarity": 0.4 }
+    }
+  }
+}

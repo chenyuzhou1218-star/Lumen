@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codedoctor"
+version = "0.1.0"
+description = "Code Doctor background service: agents, evidence, long-term memory"
+requires-python = ">=3.11"
+dependencies = [
+    "jsonschema>=4.23",
+    "referencing>=0.35",
+    "rfc3339-validator>=0.1.4",
+    "httpx>=0.27",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "tree-sitter>=0.25",
+    "tree-sitter-javascript>=0.23",
+    "tree-sitter-typescript>=0.23",
+    "PySide6-Essentials>=6.8",
+    "PySide6-WebEngine>=6.8",  # the built-in browser (desktop/browser.py)
+    "keyring>=25",
+    "pillow>=10",
+]
+
+[project.scripts]
+codedoctor = "codedoctor.cli:main"
+
+[project.gui-scripts]
+codedoctor-gui = "codedoctor.gui:main"
+codedoctor-desktop = "codedoctor.desktop.app:main"
+
+[tool.setuptools.packages.find]
+include = ["codedoctor*"]
+
+[tool.setuptools.package-data]
+codedoctor = ["desktop/book/*.md", "desktop/assets/team/*.png", "desktop/assets/*.ico"]  # the feature book in ten languages (desktop/manual.py)

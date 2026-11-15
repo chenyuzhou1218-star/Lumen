@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/common/defs.schema.json",
+  "title": "Code Doctor shared definitions v0",
+  "description": "Primitive types shared by every Code Doctor protocol. Other schemas reference these by $ref; nothing here is a top-level document.",
+  "$defs": {
+    "ulid": {
+      "description": "Crockford base32 ULID (26 chars). Sortable by creation time.",
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "traceId": {
+      "description": "W3C trace id: 32 lowercase hex, not all zeros.",
+      "type": "string",
+      "pattern": "^(?!0{32})[0-9a-f]{32}$"
+    },
+    "spanId": {
+      "description": "W3C span id: 16 lowercase hex, not all zeros.",
+      "type": "string",
+      "pattern": "^(?!0{16})[0-9a-f]{16}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "codeVersion": {
+      "description": "Git commit (sha1 or sha256), or 'wt-<sha256>' for an uncommitted working tree snapshot hashed by Code Doctor.",
+      "type": "string",
+      "pattern": "^([0-9a-f]{40}|[0-9a-f]{64}|wt-[0-9a-f]{64})$"
+    },
+    "artifactVersion": {
+      "description": "Version of something other than code that a conclusion depends on: application config, database schema, deployment. Usually 'sha256:<hex>' of the artifact, or a migration id.",
+      "type": "string",
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z._:+-]{0,127}$"
+    },
+    "unixNano": {
+      "description": "Unix time in nanoseconds as a decimal string (JSON numbers lose precision above 2^53).",
+      "type": "string",
+      "pattern": "^[0-9]{1,20}$"
+    },
+    "timestamp": {
+      "description": "RFC 3339 timestamp, used for records produced by Code Doctor itself.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "repoPath": {
+      "description": "Repository-relative path with forward slashes. No drive letters, no '..', no ':' '#' '@' (reserved by evidence ids).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$))[^:#@\\\\]+$"
+    },
+    "serviceName": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+    },
+    "dataClass": {
+      "description": "Sensitivity label. Model-routing policy (schemas/config, owned by the config protocol) decides which models may receive each class. 'local_only' must never leave the machine.",
+      "enum": ["public", "internal", "confidential", "secret", "local_only"]
+    },
+    "evidenceLevel": {
+      "description": "How strongly a fact is established. observed: raw telemetry/log/db shows it. reproduced: re-triggered in an isolated run. inferred: derived from other evidence, not directly seen. speculated: model judgement only.",
+      "enum": ["observed", "reproduced", "inferred", "speculated"]
+    },
+    "layer": {
+      "description": "Architectural layer an event or probe belongs to.",
+      "enum": ["ui", "http_client", "http_server", "handler", "db", "ws", "job", "rpc", "process", "other"]
+    },
+    "redactedValue": {
+      "description": "Placeholder for a sensitive value. 'cd:redacted' drops it entirely; 'cd:redacted:hmac:<hex>' keeps a per-project keyed hash so equality can still be compared without revealing the value.",
+      "type": "string",
+      "pattern": "^cd:redacted(:hmac:[0-9a-f]{64})?$"
+    },
+    "attributeValue": {
+      "description": "OpenTelemetry attribute value: primitive or homogeneous array of primitives.",
+      "oneOf": [
+        { "type": "string", "maxLength": 8192 },
+        { "type": "boolean" },
+        { "type": "number" },
+        {
+          "type": "array",
+          "maxItems": 256,
+          "items": { "type": ["string", "boolean", "number"] }
+        }
+      ]
+    },
+    "attributes": {
+      "description": "OTel-style flat attribute map. Keys must be lowercase dotted names. Keys that look like credentials MUST carry a redacted placeholder, never the raw value.",
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9_][a-z0-9_.\\-]{0,254}$"
+      },
+      "patternProperties": {
+        "(^|[._-])((password|passwd|secret|api[_-]?key|apikey|authorization|cookie|set-cookie|session[_-]?id|private[_-]?key|credential)s?|token)($|[._-])": {
+          "$ref": "#/$defs/redactedValue"
+        }
+      },
+      "additionalProperties": { "$ref": "#/$defs/attributeValue" }
+    },
+    "modelIdentity": {
+      "description": "Which model produced something. Recorded for traceability only; the protocol never chooses a model (that is the user's decision, see schemas/config).",
+      "type": "object",
+      "required": ["provider", "model"],
+      "properties": {
+        "provider": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "model": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "endpoint_profile": {
+          "description": "Id of the user's endpoint profile in schemas/config. Never the API key or base URL itself.",
+          "type": "string",
+          "maxLength": 128
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

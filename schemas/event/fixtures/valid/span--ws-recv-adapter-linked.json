@@ -1,0 +1,38 @@
+{
+  "description": "Server side of a WS message, correlated via the app's own sequence number and a span link.",
+  "schema": "event/span.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.event.span/0",
+    "trace_id": "7c2f0e9a41d84b6f9a3e5d1c0b8a7f62",
+    "span_id": "1a1b2c3d4e5f6071",
+    "name": "ws recv move",
+    "cd_kind": "ws.recv",
+    "otel_kind": "consumer",
+    "start_time_unix_nano": "1761300000020000000",
+    "end_time_unix_nano": "1761300000024000000",
+    "status": {
+      "code": "unset"
+    },
+    "service": {
+      "name": "arena-server",
+      "instance_id": "arena-eu-1",
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+    },
+    "probe_id": "prb_01JB8Z0000000000000000GMSV",
+    "attributes": {
+      "cd.ws.connection.id": "conn-42",
+      "cd.ws.correlation.method": "adapter",
+      "cd.ws.msg.key": "seq:1907",
+      "cd.ws.msg.type": "move",
+      "cd.ws.frame.opcode": "binary"
+    },
+    "links": [
+      {
+        "trace_id": "5d4c3b2a19087f6e5d4c3b2a19087f6e",
+        "span_id": "0a1b2c3d4e5f6071",
+        "relation": "ws_correlated"
+      }
+    ]
+  }
+}

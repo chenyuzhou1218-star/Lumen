@@ -1,0 +1,28 @@
+{
+  "description": "'Looks reasonable' is not a review verdict.",
+  "schema": "agent/message.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "enum",
+    "path": "/body/verdict"
+  },
+  "instance": {
+    "cd_schema": "cd.agent.message/0",
+    "id": "msg_01JB8Z3000000000000000MS03",
+    "thread_id": "thr_01JB8Z3000000000000000TH01",
+    "reply_to": "msg_01JB8Z3000000000000000MS02",
+    "from": "guardian-1",
+    "to": "head-logic",
+    "kind": "review",
+    "created_at": "2026-10-24T11:05:00Z",
+    "body": {
+      "review_id": "rev_01JB8Z2000000000000000RV07",
+      "claim_id": "clm_01JB8Z8000000000000000CM01",
+      "verdict": "looks_fine",
+      "evidence": [
+        "ev:test:01JB8Z9000000000000000TR02/replay_buy"
+      ],
+      "notes": "Replayed the click; orders INSERT still absent."
+    }
+  }
+}

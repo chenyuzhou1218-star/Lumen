@@ -1,0 +1,10 @@
+{
+  "description": "Context items may omit predicates.",
+  "schema": "evidence/evidence-ref.schema.json",
+  "expect": "valid",
+  "instance": {
+    "id": "ev:log:aa73523228365aa556f0faf05a8d875354e70201714797f60e49bbf1e0e92da7:L2210-L2214",
+    "role": "context",
+    "shows": "server logged a version mismatch at the same time"
+  }
+}

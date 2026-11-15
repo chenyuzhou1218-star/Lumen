@@ -1,0 +1,10 @@
+{
+  "name": "phone_stand",
+  "script": "part.py",
+  "printer": [
+    220,
+    220,
+    250
+  ],
+  "max_seconds": 600
+}

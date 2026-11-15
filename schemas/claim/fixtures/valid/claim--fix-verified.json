@@ -1,0 +1,59 @@
+{
+  "description": "Fix verified by a re-run on the fix commit.",
+  "schema": "claim/claim.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.claim/0",
+    "id": "clm_01JB8Z8000000000000000CM04",
+    "claim_type": "fix_verification",
+    "created_at": "2026-10-24T10:05:00Z",
+    "author": {
+      "kind": "agent",
+      "id": "worker-backend-2",
+      "role": "worker",
+      "model": {
+        "provider": "ollama",
+        "model": "qwen3-coder:30b",
+        "endpoint_profile": "local-ollama"
+      },
+      "task_id": "task_01JB8Z2000000000000000TK01"
+    },
+    "statement": {
+      "text": "After the fix, buying with a stale inventory_version returns 409 and the UI shows a reload prompt.",
+      "subject": "ent:symbol:shop-api:server/shop.py#ShopService.buy",
+      "relation": "fixed_by",
+      "object": {
+        "value": "3b18e512dba79e4c8300dd08aeb37f8e728b8dad"
+      }
+    },
+    "evidence_level": "reproduced",
+    "scope": {
+      "code_version": "3b18e512dba79e4c8300dd08aeb37f8e728b8dad",
+      "services": [
+        "shop-api",
+        "shop-web"
+      ],
+      "environment": "test"
+    },
+    "evidence": [
+      {
+        "id": "ev:test:01JB8Z9000000000000000TR01/tests%2Ftest_shop.py%3A%3Atest_buy_when_inventory_version_stale",
+        "role": "supports",
+        "shows": "regression test passes on the fix commit",
+        "assert": [
+          {
+            "op": "test_outcome",
+            "outcome": "passed"
+          }
+        ],
+        "expect_binding": {
+          "code_version": "3b18e512dba79e4c8300dd08aeb37f8e728b8dad"
+        }
+      }
+    ],
+    "depends_on": [
+      "clm_01JB8Z8000000000000000CM02"
+    ],
+    "status": "proposed"
+  }
+}

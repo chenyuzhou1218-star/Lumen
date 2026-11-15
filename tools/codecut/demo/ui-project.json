@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "width": 640,
+  "height": 360,
+  "fps": 24,
+  "scenes": [
+    {
+      "id": "intro",
+      "kind": "code",
+      "source": "C:\\Users\\cheng\\Documents\\Codex\\2026-10-31\\new-chat\\outputs\\codecut\\demo\\animation.html",
+      "duration": 2
+    },
+    {
+      "id": "video",
+      "kind": "video",
+      "source": "C:\\Users\\cheng\\Documents\\Codex\\2026-10-31\\new-chat\\outputs\\codecut\\demo\\video.mp4",
+      "duration": 2,
+      "volume": 0.4,
+      "overlays": [
+        {
+          "id": "picture",
+          "kind": "code",
+          "source": "C:\\Users\\cheng\\Documents\\Codex\\2026-10-31\\new-chat\\outputs\\codecut\\demo\\animation.html",
+          "duration": 2,
+          "x": 360,
+          "y": 190,
+          "width": 256,
+          "height": 144
+        }
+      ]
+    }
+  ],
+  "audio": [
+    {
+      "id": "music",
+      "kind": "audio",
+      "source": "C:\\Users\\cheng\\Documents\\Codex\\2026-10-31\\new-chat\\outputs\\codecut\\demo\\music.mp3",
+      "duration": 3.5,
+      "start": 0.5,
+      "volume": 0.2
+    }
+  ],
+  "texts": [
+    {
+      "id": "f20b99c8c0",
+      "kind": "text",
+      "text": "这是实际剪辑导出的字幕",
+      "start": 1.0,
+      "duration": 3.0,
+      "font_size": 48.0,
+      "color": "#ffffff",
+      "x": 320.0,
+      "y": 288.0,
+      "box": true,
+      "name": "文字"
+    }
+  ],
+  "assets": []
+}

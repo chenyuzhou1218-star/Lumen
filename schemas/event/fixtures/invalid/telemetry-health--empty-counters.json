@@ -1,0 +1,33 @@
+{
+  "description": "A report with no counters says nothing.",
+  "schema": "event/telemetry-health.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "minProperties",
+    "path": "/counters"
+  },
+  "instance": {
+    "cd_schema": "cd.event.telemetry-health/0",
+    "id": "ev:health:01JB8Z5000000000000000HA01",
+    "component": {
+      "type": "probe",
+      "id": "prb_01JB8Z0000000000000000APYX"
+    },
+    "heartbeat_seq": 118,
+    "window": {
+      "start_unix_nano": "1761299995000000000",
+      "end_unix_nano": "1761300005000000000"
+    },
+    "received_at": "2026-10-24T09:10:05Z",
+    "counters": {},
+    "queue": {
+      "length_max": 41,
+      "capacity": 2048
+    },
+    "last_export_ok_unix_nano": "1761300005200000000",
+    "clock": {
+      "offset_ms_estimate": 0.0,
+      "method": "same_host"
+    }
+  }
+}

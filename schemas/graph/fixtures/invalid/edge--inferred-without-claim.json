@@ -1,0 +1,17 @@
+{
+  "description": "An inferred edge must cite the claim it comes from.",
+  "schema": "graph/edge.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "required",
+    "message_contains": "claim"
+  },
+  "instance": {
+    "cd_schema": "cd.graph.edge/0",
+    "src": "ent:symbol:shop:server/wallet.py#add_gold",
+    "rel": "writes",
+    "dst": "ent:state:shop:attr/gold",
+    "provenance": "inferred",
+    "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+  }
+}

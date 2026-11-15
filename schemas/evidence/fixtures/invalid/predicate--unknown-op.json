@@ -1,0 +1,11 @@
+{
+  "description": "Closed set of operators.",
+  "schema": "evidence/predicate.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "oneOf"
+  },
+  "instance": {
+    "op": "looks_suspicious"
+  }
+}

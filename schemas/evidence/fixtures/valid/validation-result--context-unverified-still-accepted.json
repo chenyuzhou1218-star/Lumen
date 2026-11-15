@@ -1,0 +1,38 @@
+{
+  "description": "Unverified context items do not block acceptance; only supporting items must be verified.",
+  "schema": "evidence/validation-result.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.evidence.validation/0",
+    "id": "val_01JB8ZC000000000000000VA02",
+    "claim_id": "clm_01JB8Z8000000000000000CM02",
+    "validated_at": "2026-10-24T09:14:01Z",
+    "validator": "evidence.validate/0.1.0",
+    "refs": [
+      {
+        "id": "ev:code:9fceb02d0ae598e95dc970b74767f19372d61af8:server/shop.py#ShopService.buy@42d05c02eaa9ba3633aed262f62090a10fa622ce5fe46870d92b7000969cd4dd:L42-L61",
+        "role": "supports",
+        "exists": "pass",
+        "integrity": "pass",
+        "binding": "pass",
+        "support": "machine_verified",
+        "predicate_results": [
+          {
+            "index": 0,
+            "result": "true"
+          }
+        ]
+      },
+      {
+        "id": "ev:log:aa73523228365aa556f0faf05a8d875354e70201714797f60e49bbf1e0e92da7:L2210-L2214",
+        "role": "context",
+        "exists": "pass",
+        "integrity": "pass",
+        "binding": "not_checked",
+        "support": "unverified"
+      }
+    ],
+    "overall": "accepted",
+    "reasons": []
+  }
+}

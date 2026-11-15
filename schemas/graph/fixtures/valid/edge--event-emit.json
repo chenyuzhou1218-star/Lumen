@@ -1,0 +1,18 @@
+{
+  "description": "Event emitted on an in-process bus.",
+  "schema": "graph/edge.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.graph.edge/0",
+    "src": "ent:symbol:game:ui/BuyUI.js#BuyUI.purchase",
+    "rel": "emits",
+    "dst": "ent:event:game:buy_purchase_success",
+    "provenance": "static",
+    "resolution": "exact",
+    "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+    "location": {
+      "path": "ui/BuyUI.js",
+      "line": 2580
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "description": "Service stopped between intent and result: outcome unknown, must not be repeated blindly.",
+  "schema": "agent/side-effect.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.agent.side-effect/0",
+    "id": "eff_01JB8ZD000000000000000EF01",
+    "task_id": "task_01JB8Z2000000000000000TK01",
+    "agent": "doctor",
+    "tool": "run_command",
+    "effect_class": "external",
+    "retry_safe": false,
+    "arguments": {
+      "command": "git stash"
+    },
+    "state": "unknown",
+    "intent_at": "2026-10-24T12:00:00Z",
+    "journal_call": "jrn_01JB8ZB000000000000000JR20"
+  }
+}

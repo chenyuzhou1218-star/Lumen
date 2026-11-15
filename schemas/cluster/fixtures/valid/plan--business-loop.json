@@ -1,0 +1,16 @@
+{
+  "description": "A distinguishing experiment and affected-business regression, with explicit competing predictions.",
+  "schema": "cluster/plan.schema.json", "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.cluster.plan/0", "symptoms": ["ent:symbol:shop:system.py#purchase"],
+    "hypotheses": [
+      { "id": "retry", "statement": "A logical retry changes persisted money twice", "candidate": "ent:symbol:shop:system.py#purchase" },
+      { "id": "display", "statement": "Only the display is wrong", "candidate": "ent:symbol:shop:system.py#purchase" }
+    ],
+    "checks": [
+      { "id": "repeat", "scenario": "duplicate", "purpose": "discriminate", "contracts": ["amount"], "predictions": { "retry": "violated", "display": "holds" } },
+      { "id": "impact", "scenario": "purchase_regression", "purpose": "regression", "contracts": ["amount"], "predictions": {} }
+    ],
+    "repeats": 2, "max_executions": 24
+  }
+}

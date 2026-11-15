@@ -1,0 +1,23 @@
+{
+  "description": "An external command that ran to completion.",
+  "schema": "agent/side-effect.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.agent.side-effect/0",
+    "id": "eff_01JB8ZD000000000000000EF01",
+    "task_id": "task_01JB8Z2000000000000000TK01",
+    "agent": "doctor",
+    "tool": "run_command",
+    "effect_class": "external",
+    "retry_safe": false,
+    "arguments": {
+      "command": "git stash"
+    },
+    "state": "done",
+    "intent_at": "2026-10-24T12:00:00Z",
+    "finished_at": "2026-10-24T12:00:01Z",
+    "journal_call": "jrn_01JB8ZB000000000000000JR20",
+    "journal_result": "jrn_01JB8ZB000000000000000JR21",
+    "result_summary": "exit 0"
+  }
+}

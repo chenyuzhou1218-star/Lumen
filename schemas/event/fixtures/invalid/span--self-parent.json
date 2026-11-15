@@ -1,0 +1,43 @@
+{
+  "description": "Span cannot be its own parent.",
+  "schema": "event/span.schema.json",
+  "expect": "invalid",
+  "expect_rule": "SPAN_SELF_PARENT",
+  "instance": {
+    "cd_schema": "cd.event.span/0",
+    "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+    "span_id": "e1b2c3d4e5f60718",
+    "parent_span_id": "e1b2c3d4e5f60718",
+    "name": "UPDATE players",
+    "cd_kind": "db",
+    "otel_kind": "client",
+    "start_time_unix_nano": "1761300000040000000",
+    "end_time_unix_nano": "1761300000055000000",
+    "status": {
+      "code": "unset"
+    },
+    "service": {
+      "name": "shop-api",
+      "instance_id": "api-1",
+      "version": "0.4.2",
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+    },
+    "probe_id": "prb_01JB8Z0000000000000000APYX",
+    "attributes": {
+      "cd.action.id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W",
+      "db.system.name": "sqlite",
+      "db.operation.name": "UPDATE",
+      "db.collection.name": "players",
+      "cd.db.tx.id": "tx-8812",
+      "cd.db.tx.outcome": "committed",
+      "cd.db.reads": [
+        "players.gold",
+        "players.inventory_version"
+      ],
+      "cd.db.writes": [
+        "players.gold"
+      ],
+      "cd.db.rows_affected": 1
+    }
+  }
+}

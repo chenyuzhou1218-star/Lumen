@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/event/span.schema.json",
+  "title": "Normalized span v0",
+  "description": "One span as stored by Code Doctor after OTLP ingest. SDKs emit ordinary OTLP; ingest normalizes it into this form (legacy attribute names mapped, ids lowercased, times as decimal strings). Downstream analysis (trace assembly, coupling graph, foresight) reads only this form.",
+  "type": "object",
+  "required": [
+    "cd_schema", "trace_id", "span_id", "name", "cd_kind", "otel_kind",
+    "start_time_unix_nano", "end_time_unix_nano", "status", "service", "probe_id", "attributes"
+  ],
+  "properties": {
+    "cd_schema": { "const": "cd.event.span/0" },
+    "trace_id": { "$ref": "../common/defs.schema.json#/$defs/traceId" },
+    "span_id": { "$ref": "../common/defs.schema.json#/$defs/spanId" },
+    "parent_span_id": { "$ref": "../common/defs.schema.json#/$defs/spanId" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "cd_kind": {
+      "description": "Code Doctor event kind. Decides which attributes are mandatory (see allOf below).",
+      "enum": [
+        "ui.action", "ui.settle",
+        "http.client", "http.server",
+        "handler", "db",
+        "ws.send", "ws.recv",
+        "job.enqueue", "job.run",
+        "other"
+      ]
+    },
+    "otel_kind": { "enum": ["internal", "server", "client", "producer", "consumer"] },
+    "start_time_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" },
+    "end_time_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" },
+    "status": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "code": { "enum": ["unset", "ok", "error"] },
+        "message": { "type": "string", "maxLength": 4096 }
+      },
+      "additionalProperties": false
+    },
+    "service": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "$ref": "../common/defs.schema.json#/$defs/serviceName" },
+        "instance_id": { "type": "string", "maxLength": 256 },
+        "version": { "type": "string", "maxLength": 128 },
+        "code_version": { "$ref": "../common/defs.schema.json#/$defs/codeVersion" }
+      },
+      "additionalProperties": false
+    },
+    "probe_id": {
+      "description": "Probe that emitted the span; must match a coverage declaration (event/coverage).",
+      "type": "string",
+      "pattern": "^prb_[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "data_class": {
+      "$ref": "../common/defs.schema.json#/$defs/dataClass",
+      "default": "internal"
+    },
+    "attributes": {
+      "allOf": [
+        { "$ref": "../common/defs.schema.json#/$defs/attributes" },
+        {
+          "description": "Normalized form uses current OTel code.* names only. Ingest maps legacy names and sets cd.compat.legacy_code_attrs=true.",
+          "propertyNames": {
+            "not": { "enum": ["code.filepath", "code.function", "code.lineno", "code.namespace", "db.system"] }
+          }
+        },
+        { "$ref": "#/$defs/knownAttributes" }
+      ]
+    },
+    "links": {
+      "type": "array",
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/link" }
+    },
+    "events": {
+      "description": "OTel span events (e.g. exception).",
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "required": ["name", "time_unix_nano"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "time_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" },
+          "attributes": { "$ref": "../common/defs.schema.json#/$defs/attributes" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "cd_kind": { "const": "ui.action" } } },
+      "then": { "properties": { "attributes": { "required": ["cd.action.id", "cd.action.type"] } } }
+    },
+    {
+      "if": { "properties": { "cd_kind": { "const": "ui.settle" } } },
+      "then": { "properties": { "attributes": { "required": ["cd.action.id", "cd.ui.settle.result", "cd.ui.settle.observer"] } } }
+    },
+    {
+      "if": { "properties": { "cd_kind": { "const": "http.client" } } },
+      "then": { "properties": { "attributes": { "required": ["http.request.method", "cd.propagation.injected"] } } }
+    },
+    {
+      "if": { "properties": { "cd_kind": { "const": "http.server" } } },
+      "then": { "properties": { "attributes": { "required": ["http.request.method", "http.route"] } } }
+    },
+    {
+      "if": { "properties": { "cd_kind": { "const": "handler" } } },
+      "then": { "properties": { "attributes": { "required": ["code.function.name", "code.file.path"] } } }
+    },
+    {
+      "if": { "properties": { "cd_kind": { "const": "db" } } },
+      "then": { "properties": { "attributes": { "required": ["db.system.name"] } } }
+    },
+    {
+      "if": { "properties": { "cd_kind": { "enum": ["ws.send", "ws.recv"] } } },
+      "then": { "properties": { "attributes": { "required": ["cd.ws.connection.id", "cd.ws.correlation.method"] } } }
+    },
+    {
+      "if": { "properties": { "cd_kind": { "enum": ["job.enqueue", "job.run"] } } },
+      "then": { "properties": { "attributes": { "required": ["cd.job.id"] } } }
+    },
+    {
+      "description": "Correlation method 'adapter' needs the app-level message key; 'digest' needs the payload digest. 'envelope' carries traceparent inside the message, so the recv span has a real parent.",
+      "if": {
+        "properties": { "attributes": { "properties": { "cd.ws.correlation.method": { "const": "adapter" } }, "required": ["cd.ws.correlation.method"] } }
+      },
+      "then": { "properties": { "attributes": { "required": ["cd.ws.msg.key"] } } }
+    },
+    {
+      "if": {
+        "properties": { "attributes": { "properties": { "cd.ws.correlation.method": { "const": "digest" } }, "required": ["cd.ws.correlation.method"] } }
+      },
+      "then": { "properties": { "attributes": { "required": ["cd.ws.msg.digest", "cd.ws.msg.size"] } } }
+    }
+  ],
+  "$defs": {
+    "link": {
+      "description": "Span link. Used when one user action spans several traces (WebSocket push, async job, reconnect, retry).",
+      "type": "object",
+      "required": ["trace_id", "span_id", "relation"],
+      "properties": {
+        "trace_id": { "$ref": "../common/defs.schema.json#/$defs/traceId" },
+        "span_id": { "$ref": "../common/defs.schema.json#/$defs/spanId" },
+        "relation": {
+          "enum": ["continues_action", "caused_by", "follows_from", "retry_of", "reconnect_of", "ws_correlated", "other"]
+        },
+        "attributes": { "$ref": "../common/defs.schema.json#/$defs/attributes" }
+      },
+      "additionalProperties": false
+    },
+    "knownAttributes": {
+      "description": "Types for attributes Code Doctor interprets. Unknown attributes are allowed and kept as-is.",
+      "type": "object",
+      "properties": {
+        "cd.action.id": {
+          "description": "Business-level id of one user action. Generated at the ui.action root and propagated through W3C baggage, WS envelopes or adapters, so spans in other traces still join the same action.",
+          "$ref": "../common/defs.schema.json#/$defs/ulid"
+        },
+        "cd.action.type": { "enum": ["click", "dblclick", "input", "submit", "navigate", "key", "drag", "scroll", "game_input", "custom"] },
+        "cd.ui.target.selector": { "type": "string", "maxLength": 1024 },
+        "cd.ui.target.text": { "type": "string", "maxLength": 512 },
+        "cd.ui.target.component": { "type": "string", "maxLength": 256 },
+        "cd.ui.settle.result": {
+          "description": "What the UI did after the action. 'timeout' = settle window elapsed without the observer deciding.",
+          "enum": ["changed", "no_change", "error_shown", "navigated", "timeout"]
+        },
+        "cd.ui.settle.observer": { "enum": ["mutation_observer", "framework_hook", "render_loop_hook", "screenshot_diff", "manual"] },
+        "cd.ui.settle.window_ms": { "type": "integer", "minimum": 1 },
+        "cd.propagation.injected": {
+          "description": "The client SDK actually wrote trace context into the outgoing request/message. false means downstream absence cannot be blamed on the server.",
+          "type": "boolean"
+        },
+        "cd.propagation.carrier": { "enum": ["http_header", "ws_envelope", "ws_adapter", "baggage", "none"] },
+        "http.request.method": { "type": "string", "pattern": "^[A-Z_]{1,16}$" },
+        "http.route": { "type": "string", "maxLength": 1024 },
+        "http.response.status_code": { "type": "integer", "minimum": 100, "maximum": 599 },
+        "url.path": { "type": "string", "maxLength": 4096 },
+        "code.file.path": { "$ref": "../common/defs.schema.json#/$defs/repoPath" },
+        "code.function.name": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "code.line.number": { "type": "integer", "minimum": 1 },
+        "code.column.number": { "type": "integer", "minimum": 1 },
+        "cd.compat.legacy_code_attrs": { "type": "boolean" },
+        "db.system.name": { "type": "string", "maxLength": 64 },
+        "db.operation.name": { "type": "string", "maxLength": 64 },
+        "db.collection.name": { "type": "string", "maxLength": 256 },
+        "cd.db.tx.id": { "type": "string", "maxLength": 128 },
+        "cd.db.tx.outcome": { "enum": ["committed", "rolled_back", "unknown"] },
+        "cd.db.reads": {
+          "description": "table.column names read. '*' column means whole row.",
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Za-z0-9_$]+\\.([A-Za-z0-9_$]+|\\*)$" }
+        },
+        "cd.db.writes": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Za-z0-9_$]+\\.([A-Za-z0-9_$]+|\\*)$" }
+        },
+        "cd.db.rows_affected": { "type": "integer", "minimum": 0 },
+        "cd.ws.connection.id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "cd.ws.correlation.method": {
+          "description": "envelope: trace context inside the message (opt-in, only for protocols that allow extra fields). adapter: app-supplied extractor reads an existing message id/seq, protocol untouched. digest: both ends record sha256 of the raw frame bytes, protocol untouched, works for binary frames. none: no correlation possible.",
+          "enum": ["envelope", "adapter", "digest", "none"]
+        },
+        "cd.ws.msg.key": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "cd.ws.msg.type": { "type": "string", "maxLength": 256 },
+        "cd.ws.msg.digest": { "$ref": "../common/defs.schema.json#/$defs/sha256" },
+        "cd.ws.msg.size": { "type": "integer", "minimum": 0 },
+        "cd.ws.frame.opcode": { "enum": ["text", "binary"] },
+        "cd.job.id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "cd.job.name": { "type": "string", "maxLength": 256 }
+      }
+    }
+  }
+}

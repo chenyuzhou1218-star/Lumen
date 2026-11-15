@@ -1,0 +1,12 @@
+{
+  "description": "attr_equals needs a value.",
+  "schema": "evidence/predicate.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "oneOf"
+  },
+  "instance": {
+    "op": "attr_equals",
+    "attr": "x"
+  }
+}

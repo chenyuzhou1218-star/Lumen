@@ -1,0 +1,12 @@
+{
+  "name": "living-room",
+  "script": "scene.py",
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "frame_start": 1,
+  "frame_end": 1,
+  "samples": 96,
+  "engine": "cycles",
+  "max_seconds": 300
+}

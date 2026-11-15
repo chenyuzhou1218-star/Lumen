@@ -1,0 +1,65 @@
+{
+ "title": "我们的第一次演示",
+ "theme": "清爽",
+ "slides": [
+  {
+   "kind": "title",
+   "title": "把想法做成演示",
+   "subtitle": "这份幻灯片是 CodeDeck 写出来的"
+  },
+  {
+   "kind": "points",
+   "title": "改一改左边的文字，再点生成",
+   "points": [
+    "标题写结论",
+    "一页只讲一件事",
+    {
+     "text": "图比字好",
+     "note": "能画图就别写长句"
+    }
+   ]
+  },
+  {
+   "kind": "chart",
+   "title": "图表直接写数字就行",
+   "chart": {
+    "type": "bar",
+    "labels": [
+     "一月",
+     "二月",
+     "三月",
+     "四月"
+    ],
+    "values": [
+     12,
+     19,
+     15,
+     27
+    ]
+   }
+  },
+  {
+   "kind": "steps",
+   "title": "三步做好",
+   "steps": [
+    {
+     "title": "写",
+     "text": "把要讲的写下来"
+    },
+    {
+     "title": "生成",
+     "text": "点一下按钮"
+    },
+    {
+     "title": "看",
+     "text": "每页都出图"
+    }
+   ]
+  },
+  {
+   "kind": "end",
+   "title": "谢谢",
+   "subtitle": ""
+  }
+ ]
+}

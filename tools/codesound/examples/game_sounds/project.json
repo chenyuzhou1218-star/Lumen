@@ -1,0 +1,6 @@
+{
+  "name": "game_sounds",
+  "script": "song.py",
+  "seed": 7,
+  "max_seconds": 1800
+}

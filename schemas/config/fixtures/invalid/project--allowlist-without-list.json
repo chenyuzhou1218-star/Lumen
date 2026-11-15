@@ -1,0 +1,75 @@
+{
+  "description": "allowlist mode needs the list.",
+  "schema": "config/project.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "required",
+    "message_contains": "command_allowlist"
+  },
+  "instance": {
+    "cd_schema": "cd.config.project/0",
+    "project": {
+      "name": "shop-demo",
+      "root": "D:/private/shop-demo"
+    },
+    "endpoints": [
+      {
+        "id": "local-ollama",
+        "kind": "openai_compatible",
+        "base_url": "http://127.0.0.1:11434/v1",
+        "local": true,
+        "max_concurrency": 1
+      },
+      {
+        "id": "deepseek",
+        "kind": "openai_compatible",
+        "base_url": "https://api.deepseek.com/v1",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "local": false,
+        "max_data_class": "confidential",
+        "max_concurrency": 8
+      },
+      {
+        "id": "claude",
+        "kind": "anthropic",
+        "base_url": "https://api.anthropic.com",
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "local": false
+      }
+    ],
+    "agents": [
+      {
+        "id": "doctor",
+        "role": "general",
+        "endpoint": "deepseek",
+        "model": "deepseek-chat",
+        "fallbacks": [
+          {
+            "endpoint": "local-ollama",
+            "model": "qwen3:8b"
+          }
+        ],
+        "params": {
+          "temperature": 0.2,
+          "max_output_tokens": 4096
+        },
+        "context_budget_tokens": 120000,
+        "memory": {
+          "recall_k": 12,
+          "shared_read": true
+        }
+      }
+    ],
+    "permissions": {
+      "run_command": "allowlist",
+      "write_files": false
+    },
+    "defaults": {
+      "budget": {
+        "max_steps": 60,
+        "max_tokens": 400000
+      },
+      "stall_steps": 6
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "description": "Patterns are a closed set.",
+  "schema": "graph/risk.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "enum",
+    "path": "/pattern"
+  },
+  "instance": {
+    "cd_schema": "cd.graph.risk/0",
+    "id": "rsk_0123456789abcdef",
+    "pattern": "smells_bad",
+    "severity": "high",
+    "entities": [
+      "ent:state:shop:attr/gold",
+      "ent:symbol:shop:server/wallet.py#add_gold",
+      "ent:symbol:shop:server/wallet.py#spend_gold"
+    ],
+    "locations": [
+      {
+        "path": "server/wallet.py",
+        "line": 4
+      },
+      {
+        "path": "server/wallet.py",
+        "line": 11
+      }
+    ],
+    "explanation": "gold is written by 2 functions reachable from 3 entry points with no lock or transaction.",
+    "fault_model": "fm:concurrent_write",
+    "how_to_verify": "Call buy and settle concurrently for one player; compare gold with the ledger.",
+    "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+  }
+}

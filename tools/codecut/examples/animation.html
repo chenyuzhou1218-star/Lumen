@@ -1,0 +1,22 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>CodeCut animation</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1020}canvas{display:block;width:100%;height:100%}</style></head>
+<body><canvas id="screen"></canvas><script>
+// CodeCut calls this function once per exported frame. Time is in seconds.
+window.renderFrame = function(t, size) {
+ const c=document.getElementById('screen'); c.width=size.width; c.height=size.height;
+ const ctx=c.getContext('2d'), w=c.width, h=c.height;
+ const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'#101d3d');g.addColorStop(1,'#201332');
+ ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+ for(let i=0;i<24;i++){
+  const x=((i*67+t*40)%(w+40))-20,y=h*.5+Math.sin(i*.8+t*2)*h*.35;
+  ctx.fillStyle=i%2?'#64e1d2':'#a99bff';ctx.globalAlpha=.2;ctx.beginPath();ctx.arc(x,y,3+i%5,0,Math.PI*2);ctx.fill();
+ }
+ ctx.globalAlpha=1;ctx.fillStyle='#7de5ce';ctx.font=`600 ${Math.round(w*.028)}px sans-serif`;
+ ctx.fillText('CODE + VIDEO + AUDIO',w*.08,h*.28);
+ ctx.fillStyle='#f4f6ff';ctx.font=`bold ${Math.round(w*.095)}px sans-serif`;ctx.fillText('CodeCut',w*.08,h*.53);
+ ctx.fillStyle='#9daeca';ctx.font=`${Math.round(w*.025)}px sans-serif`;ctx.fillText('From running code to a real MP4.',w*.08,h*.67);
+ ctx.fillStyle='#273550';ctx.fillRect(w*.08,h*.81,w*.84,4);ctx.fillStyle='#7de5ce';ctx.fillRect(w*.08,h*.81,w*.84*((t%2)/2),4);
+};
+window.renderFrame(0,{width:innerWidth,height:innerHeight});
+</script></body></html>

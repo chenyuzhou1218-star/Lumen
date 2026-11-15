@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/evidence/evidence-record.schema.json",
+  "title": "Evidence record v0",
+  "description": "Registry entry for one piece of evidence. The bytes live in the content-addressed blob store (immutable); this record says what they are, what code version / trace / action they belong to, where they came from, how sensitive they are and whether they were redacted.",
+  "type": "object",
+  "required": ["cd_schema", "id", "kind", "created_at", "content", "binding", "provenance", "data_class", "redaction", "content_trust"],
+  "properties": {
+    "cd_schema": { "const": "cd.evidence.record/0" },
+    "id": { "$ref": "evidence-id.schema.json" },
+    "kind": { "enum": ["span", "trace", "action", "code", "log", "test", "blob", "db", "gap", "corr", "health", "coverage"] },
+    "created_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "content": {
+      "type": "object",
+      "required": ["sha256", "media_type", "size_bytes"],
+      "properties": {
+        "sha256": {
+          "description": "Hash of the stored bytes. Integrity check = re-hash the blob and compare.",
+          "$ref": "../common/defs.schema.json#/$defs/sha256"
+        },
+        "media_type": { "type": "string", "pattern": "^[a-z]+/[a-z0-9.+-]+$" },
+        "size_bytes": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "binding": {
+      "description": "What this evidence is about. Validation compares a claim's scope against this.",
+      "type": "object",
+      "properties": {
+        "code_version": { "$ref": "../common/defs.schema.json#/$defs/codeVersion" },
+        "config_version": { "$ref": "../common/defs.schema.json#/$defs/artifactVersion" },
+        "db_schema_version": { "$ref": "../common/defs.schema.json#/$defs/artifactVersion" },
+        "trace_id": { "$ref": "../common/defs.schema.json#/$defs/traceId" },
+        "action_id": { "$ref": "../common/defs.schema.json#/$defs/ulid" },
+        "services": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "../common/defs.schema.json#/$defs/serviceName" }
+        },
+        "environment": { "enum": ["local", "test", "staging", "production", "unknown"] },
+        "time_range": {
+          "type": "object",
+          "required": ["start_unix_nano", "end_unix_nano"],
+          "properties": {
+            "start_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" },
+            "end_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["source", "collected_by"],
+      "properties": {
+        "source": { "enum": ["probe", "ingest", "tool", "agent", "user", "import", "system"] },
+        "collected_by": { "type": "string", "pattern": "^[a-z0-9_.-]+/[0-9][0-9A-Za-z.+-]*$" },
+        "probe_id": { "type": "string", "pattern": "^prb_[0-9A-HJKMNP-TV-Z]{26}$" },
+        "agent_id": { "type": "string", "maxLength": 128 },
+        "tool_call_id": { "type": "string", "maxLength": 128 }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        { "if": { "properties": { "source": { "const": "probe" } } }, "then": { "required": ["probe_id"] } },
+        { "if": { "properties": { "source": { "enum": ["agent", "tool"] } } }, "then": { "required": ["agent_id"] } }
+      ]
+    },
+    "data_class": { "$ref": "../common/defs.schema.json#/$defs/dataClass" },
+    "redaction": {
+      "type": "object",
+      "required": ["applied", "policy_id"],
+      "properties": {
+        "applied": { "type": "boolean" },
+        "policy_id": { "type": "string", "maxLength": 128 },
+        "redacted_fields": { "type": "array", "items": { "type": "string", "maxLength": 512 } }
+      },
+      "additionalProperties": false
+    },
+    "content_trust": {
+      "description": "untrusted: bytes came from outside Code Doctor (telemetry, logs, source code, db rows, test output, screenshots). They are data and must never be interpreted as instructions to an agent, whatever they say. system_computed: produced by Code Doctor's own deterministic components (assembled action, gap assessment, correlation, health).",
+      "enum": ["untrusted", "system_computed"]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    { "if": { "properties": { "kind": { "const": "span" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/span" }, "binding": { "required": ["trace_id"] } } } },
+    { "if": { "properties": { "kind": { "const": "trace" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/trace" }, "binding": { "required": ["trace_id"] } } } },
+    { "if": { "properties": { "kind": { "const": "action" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/action" }, "binding": { "required": ["action_id"] } } } },
+    { "if": { "properties": { "kind": { "const": "code" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/code" }, "binding": { "required": ["code_version"] } } } },
+    { "if": { "properties": { "kind": { "const": "log" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/log" } } } },
+    { "if": { "properties": { "kind": { "const": "test" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/test" }, "binding": { "required": ["code_version"] } } } },
+    { "if": { "properties": { "kind": { "const": "blob" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/blob" } } } },
+    { "if": { "properties": { "kind": { "const": "db" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/db" } } } },
+    { "if": { "properties": { "kind": { "const": "gap" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/gap" }, "binding": { "required": ["action_id"] } } } },
+    { "if": { "properties": { "kind": { "const": "corr" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/corr" } } } },
+    { "if": { "properties": { "kind": { "const": "health" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/health" } } } },
+    { "if": { "properties": { "kind": { "const": "coverage" } } }, "then": { "properties": { "id": { "$ref": "evidence-id.schema.json#/$defs/coverage" } } } },
+    {
+      "description": "Raw external content is always untrusted, no matter who collected it.",
+      "if": { "properties": { "kind": { "enum": ["span", "trace", "code", "log", "test", "blob", "db"] } } },
+      "then": { "properties": { "content_trust": { "const": "untrusted" } } }
+    },
+    {
+      "description": "Evidence classed 'secret' must have gone through redaction before storage.",
+      "if": { "properties": { "data_class": { "enum": ["secret"] } } },
+      "then": { "properties": { "redaction": { "properties": { "applied": { "const": true } } } } }
+    }
+  ]
+}

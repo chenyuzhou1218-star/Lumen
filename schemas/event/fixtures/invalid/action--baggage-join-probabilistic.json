@@ -1,0 +1,43 @@
+{
+  "description": "Joins by propagated context are exact by construction.",
+  "schema": "event/action.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "const",
+    "path": "/traces/2/strength"
+  },
+  "instance": {
+    "cd_schema": "cd.event.action/0",
+    "id": "ev:action:01JB8Z4K3M5N6P7Q8R9S0T1V3X",
+    "action_id": "01JB8Z4K3M5N6P7Q8R9S0T1V3X",
+    "root": "ev:span:5d4c3b2a19087f6e5d4c3b2a19087f6e/3a1b2c3d4e5f6071",
+    "action_type": "game_input",
+    "start_time_unix_nano": "1761300000000000000",
+    "state": "open",
+    "traces": [
+      {
+        "trace_id": "5d4c3b2a19087f6e5d4c3b2a19087f6e",
+        "joined_by": "root",
+        "strength": "exact"
+      },
+      {
+        "trace_id": "7c2f0e9a41d84b6f9a3e5d1c0b8a7f62",
+        "joined_by": "ws_digest",
+        "strength": "probabilistic",
+        "via": [
+          "ev:corr:01JB8Z7000000000000000CR02"
+        ]
+      },
+      {
+        "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+        "joined_by": "baggage_action_id",
+        "strength": "probabilistic",
+        "via": [
+          "ev:span:7c2f0e9a41d84b6f9a3e5d1c0b8a7f62/2a1b2c3d4e5f6071"
+        ]
+      }
+    ],
+    "assembled_at": "2026-10-24T09:10:07Z",
+    "assembler": "trace.assemble/0.1.0"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "description": "Reports must answer a task message.",
+  "schema": "agent/message.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "required",
+    "message_contains": "reply_to"
+  },
+  "instance": {
+    "cd_schema": "cd.agent.message/0",
+    "id": "msg_01JB8Z3000000000000000MS02",
+    "thread_id": "thr_01JB8Z3000000000000000TH01",
+    "from": "doctor",
+    "to": "user",
+    "kind": "report",
+    "created_at": "2026-10-24T11:04:00Z",
+    "body": {
+      "task_id": "task_01JB8Z2000000000000000TK01",
+      "outcome": "done",
+      "summary": "ShopService.buy returns early on a stale inventory_version.",
+      "claims": [
+        "clm_01JB8Z8000000000000000CM01"
+      ],
+      "evidence": [
+        "ev:gap:01JB8Z6000000000000000GP01"
+      ],
+      "open_questions": [
+        "Is inventory_version bumped by the trade service too?"
+      ],
+      "usage": {
+        "steps": 9,
+        "model_calls": 9,
+        "input_tokens": 51234,
+        "output_tokens": 3120,
+        "wall_ms": 241000
+      }
+    }
+  }
+}

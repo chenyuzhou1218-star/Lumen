@@ -1,0 +1,35 @@
+{
+  "description": "Line range L61-L42.",
+  "schema": "evidence/evidence-record.schema.json",
+  "expect": "invalid",
+  "expect_rule": "LINE_RANGE_ORDER",
+  "instance": {
+    "cd_schema": "cd.evidence.record/0",
+    "id": "ev:code:9fceb02d0ae598e95dc970b74767f19372d61af8:server/shop.py#ShopService.buy@42d05c02eaa9ba3633aed262f62090a10fa622ce5fe46870d92b7000969cd4dd:L61-L42",
+    "kind": "code",
+    "created_at": "2026-10-24T09:11:00Z",
+    "content": {
+      "sha256": "42d05c02eaa9ba3633aed262f62090a10fa622ce5fe46870d92b7000969cd4dd",
+      "media_type": "text/x-python",
+      "size_bytes": 1380
+    },
+    "binding": {
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+      "services": [
+        "shop-api"
+      ]
+    },
+    "provenance": {
+      "source": "tool",
+      "collected_by": "graph.index/0.1.0",
+      "agent_id": "worker-backend",
+      "tool_call_id": "tc_0193"
+    },
+    "data_class": "confidential",
+    "redaction": {
+      "applied": false,
+      "policy_id": "default/0"
+    },
+    "content_trust": "untrusted"
+  }
+}

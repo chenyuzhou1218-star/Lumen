@@ -1,0 +1,66 @@
+{
+  "description": "No probe on the layer: 'missing observation evidence'.",
+  "schema": "event/gap-assessment.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.event.gap-assessment/0",
+    "id": "ev:gap:01JB8Z6000000000000000GP05",
+    "action": "ev:action:01JB8Z4K3M5N6P7Q8R9S0T1V2W",
+    "template": {
+      "id": "tpl:shop.buy",
+      "version": 3
+    },
+    "stage_id": "server",
+    "expected_layer": "http_server",
+    "expected_service": "shop-api",
+    "window": {
+      "start_unix_nano": "1761300000000000000",
+      "end_unix_nano": "1761300003000000000"
+    },
+    "verdict": "not_instrumented",
+    "conclusive": false,
+    "checks": {
+      "template_confirmed": {
+        "status": "pass"
+      },
+      "coverage_declared": {
+        "status": "fail",
+        "note": "no coverage declaration for shop-api http_server"
+      },
+      "probe_alive": {
+        "status": "not_applicable"
+      },
+      "sampled": {
+        "status": "unknown"
+      },
+      "exporter_healthy": {
+        "status": "not_applicable"
+      },
+      "no_drops": {
+        "status": "not_applicable"
+      },
+      "collector_healthy": {
+        "status": "not_applicable",
+        "note": "probe exports directly to Code Doctor ingest"
+      },
+      "ingest_complete": {
+        "status": "pass",
+        "evidence": [
+          "ev:health:01JB8Z5000000000000000HG01"
+        ]
+      },
+      "context_propagated": {
+        "status": "unknown"
+      },
+      "window_elapsed": {
+        "status": "pass"
+      },
+      "clock_skew_bounded": {
+        "status": "pass"
+      }
+    },
+    "explanation": "No probe declares http_server for shop-api; missing server span says nothing about the program.",
+    "assessed_at": "2026-10-24T09:10:08Z",
+    "assessor": "trace.gap/0.1.0"
+  }
+}

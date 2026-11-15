@@ -1,0 +1,37 @@
+{
+  "description": "A version mismatch can never be accepted.",
+  "schema": "evidence/validation-result.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "const",
+    "path": "/overall"
+  },
+  "instance": {
+    "cd_schema": "cd.evidence.validation/0",
+    "id": "val_01JB8ZC000000000000000VA03",
+    "claim_id": "clm_01JB8Z8000000000000000CM04",
+    "validated_at": "2026-10-24T10:05:01Z",
+    "validator": "evidence.validate/0.1.0",
+    "refs": [
+      {
+        "id": "ev:test:01JB8Z9000000000000000TR01/tests%2Ftest_shop.py%3A%3Atest_buy_when_inventory_version_stale",
+        "role": "supports",
+        "exists": "pass",
+        "integrity": "pass",
+        "binding": "fail",
+        "support": "skipped",
+        "binding_mismatches": [
+          {
+            "field": "code_version",
+            "expected": "3b18e512dba79e4c8300dd08aeb37f8e728b8dad",
+            "actual": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+          }
+        ]
+      }
+    ],
+    "overall": "accepted",
+    "reasons": [
+      "binding_mismatch"
+    ]
+  }
+}

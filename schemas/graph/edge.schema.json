@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/graph/edge.schema.json",
+  "title": "Coupling graph edge v0",
+  "description": "One relation in the system coupling graph. Every edge says where it came from: 'static' (read from source code), 'runtime' (seen in telemetry), 'inferred' (an agent's proposed claim) or 'verified' (a supported claim). Analyses must never present an inferred edge as an observed fact.",
+  "type": "object",
+  "required": ["cd_schema", "src", "rel", "dst", "provenance", "code_version"],
+  "properties": {
+    "cd_schema": { "const": "cd.graph.edge/0" },
+    "src": { "$ref": "../claim/entity-ref.schema.json" },
+    "rel": {
+      "description": "Same vocabulary as claim relations, plus 'contains' (file contains symbol) and 'imports'.",
+      "enum": ["calls", "handles", "reads", "writes", "emits", "consumes", "triggers", "renders",
+               "depends_on", "imports", "contains", "shares_state_with", "precedes",
+               "causes", "may_cause", "affects", "violates"]
+    },
+    "dst": { "$ref": "../claim/entity-ref.schema.json" },
+    "provenance": { "enum": ["static", "runtime", "inferred", "verified"] },
+    "resolution": {
+      "description": "How a static edge was resolved. exact: unambiguous (same file, explicit import, literal string). name_match: the only definition with that name in the project. ambiguous: one of 2-3 same-named definitions, may be wrong; analyses do not follow it. heuristic: pattern-based (e.g. attribute writes, SQL in strings).",
+      "enum": ["exact", "name_match", "ambiguous", "heuristic"]
+    },
+    "code_version": { "$ref": "../common/defs.schema.json#/$defs/codeVersion" },
+    "location": {
+      "type": "object",
+      "required": ["path", "line"],
+      "properties": {
+        "path": { "$ref": "../common/defs.schema.json#/$defs/repoPath" },
+        "line": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "claim": {
+      "description": "For inferred / verified edges: the claim they come from.",
+      "type": "string",
+      "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "evidence": { "type": "array", "items": { "$ref": "../evidence/evidence-id.schema.json" } }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    { "if": { "properties": { "provenance": { "const": "static" } } }, "then": { "required": ["location", "resolution"] } },
+    { "if": { "properties": { "provenance": { "enum": ["inferred", "verified"] } } }, "then": { "required": ["claim"] } },
+    { "if": { "properties": { "provenance": { "const": "runtime" } } }, "then": { "required": ["evidence"], "properties": { "evidence": { "minItems": 1 } } } }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/event/action.schema.json",
+  "title": "Action lifecycle v0",
+  "description": "One user (or game/automation) action assembled across every trace it touched. A simple HTTP click is one trace; a WebSocket game command, an async job or a reconnect produces several traces joined by cd.action.id, span links and WS correlations. Downstream analysis works on actions, not on raw traces.",
+  "type": "object",
+  "required": ["cd_schema", "id", "action_id", "root", "action_type", "start_time_unix_nano", "state", "traces", "assembled_at", "assembler"],
+  "properties": {
+    "cd_schema": { "const": "cd.event.action/0" },
+    "id": { "$ref": "../evidence/evidence-id.schema.json#/$defs/action" },
+    "action_id": { "$ref": "../common/defs.schema.json#/$defs/ulid" },
+    "root": { "$ref": "../evidence/evidence-id.schema.json#/$defs/span" },
+    "action_type": { "type": "string", "maxLength": 64 },
+    "target": {
+      "type": "object",
+      "properties": {
+        "selector": { "type": "string", "maxLength": 1024 },
+        "text": { "type": "string", "maxLength": 512 },
+        "component": { "type": "string", "maxLength": 256 }
+      },
+      "additionalProperties": false
+    },
+    "start_time_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" },
+    "end_time_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" },
+    "state": {
+      "description": "open: still collecting. settled: a ui.settle span closed it. timed_out: settle window passed with no settle span. abandoned: the client went away (tab closed, disconnect) before settling.",
+      "enum": ["open", "settled", "timed_out", "abandoned"]
+    },
+    "settle": {
+      "type": "object",
+      "required": ["span", "result"],
+      "properties": {
+        "span": { "$ref": "../evidence/evidence-id.schema.json#/$defs/span" },
+        "result": { "enum": ["changed", "no_change", "error_shown", "navigated", "timeout"] }
+      },
+      "additionalProperties": false
+    },
+    "traces": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/joinedTrace" }
+    },
+    "template": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^tpl:[a-z0-9][a-z0-9._-]{0,127}$" },
+        "version": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "assembled_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "assembler": { "type": "string", "pattern": "^[a-z0-9_.-]+/[0-9][0-9A-Za-z.+-]*$" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "state": { "const": "settled" } } },
+      "then": { "required": ["settle", "end_time_unix_nano"] }
+    },
+    {
+      "if": { "properties": { "state": { "const": "open" } } },
+      "then": { "not": { "required": ["settle"] } }
+    },
+    {
+      "description": "The root trace must be part of the action and joined as 'root'.",
+      "properties": {
+        "traces": { "contains": { "properties": { "joined_by": { "const": "root" } } }, "maxContains": 1 }
+      }
+    }
+  ],
+  "$defs": {
+    "joinedTrace": {
+      "type": "object",
+      "required": ["trace_id", "joined_by", "strength"],
+      "properties": {
+        "trace_id": { "$ref": "../common/defs.schema.json#/$defs/traceId" },
+        "joined_by": {
+          "enum": ["root", "baggage_action_id", "span_link", "ws_envelope", "ws_adapter", "ws_digest", "job_link"]
+        },
+        "strength": { "enum": ["exact", "probabilistic"] },
+        "via": {
+          "description": "Evidence for the join: the linking span, or the ws-correlation record.",
+          "type": "array",
+          "items": { "$ref": "../evidence/evidence-id.schema.json" }
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "description": "Joins made by propagated context are exact by construction.",
+          "if": { "properties": { "joined_by": { "enum": ["root", "baggage_action_id", "span_link", "ws_envelope", "job_link"] } } },
+          "then": { "properties": { "strength": { "const": "exact" } } }
+        },
+        {
+          "description": "Non-root joins must cite what joined them.",
+          "if": { "properties": { "joined_by": { "not": { "const": "root" } } } },
+          "then": { "required": ["via"], "properties": { "via": { "minItems": 1 } } }
+        },
+        {
+          "description": "Correlation-based joins must cite the ws-correlation record.",
+          "if": { "properties": { "joined_by": { "enum": ["ws_adapter", "ws_digest"] } } },
+          "then": { "properties": { "via": { "contains": { "$ref": "../evidence/evidence-id.schema.json#/$defs/corr" } } } }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "war_march",
+  "script": "song.py",
+  "seed": 7,
+  "max_seconds": 1800
+}

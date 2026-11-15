@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/agent/message.schema.json",
+  "title": "Agent message v0",
+  "description": "Everything agents, the user and the system say to each other goes through this envelope and is stored permanently. Agents have no other channel, so the full conversation can always be replayed and audited (ClawTrace). Message text written by an agent is untrusted data for the recipient.",
+  "type": "object",
+  "required": ["cd_schema", "id", "thread_id", "from", "to", "kind", "created_at", "body"],
+  "properties": {
+    "cd_schema": { "const": "cd.agent.message/0" },
+    "id": { "$ref": "defs.schema.json#/$defs/messageId" },
+    "thread_id": { "$ref": "defs.schema.json#/$defs/threadId" },
+    "reply_to": { "$ref": "defs.schema.json#/$defs/messageId" },
+    "from": { "$ref": "defs.schema.json#/$defs/participant" },
+    "to": { "$ref": "defs.schema.json#/$defs/participant" },
+    "kind": { "enum": ["task", "report", "question", "answer", "review_request", "review", "escalation", "control"] },
+    "created_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "data_class": { "$ref": "../common/defs.schema.json#/$defs/dataClass" },
+    "body": { "type": "object" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    { "if": { "properties": { "kind": { "const": "task" } } }, "then": { "properties": { "body": { "$ref": "#/$defs/task" } } } },
+    { "if": { "properties": { "kind": { "const": "report" } } }, "then": { "properties": { "body": { "$ref": "#/$defs/report" } } } },
+    { "if": { "properties": { "kind": { "enum": ["question", "answer"] } } }, "then": { "properties": { "body": { "$ref": "#/$defs/text" } } } },
+    { "if": { "properties": { "kind": { "const": "review_request" } } }, "then": { "properties": { "body": { "$ref": "#/$defs/reviewRequest" } } } },
+    { "if": { "properties": { "kind": { "const": "review" } } }, "then": { "properties": { "body": { "$ref": "#/$defs/review" } } } },
+    { "if": { "properties": { "kind": { "const": "escalation" } } }, "then": { "properties": { "body": { "$ref": "#/$defs/escalation" } } } },
+    {
+      "description": "Only the user or the system may pause, resume, cancel or stop agents.",
+      "if": { "properties": { "kind": { "const": "control" } } },
+      "then": { "properties": { "body": { "$ref": "#/$defs/control" }, "from": { "enum": ["user", "system"] } } }
+    },
+    {
+      "if": { "properties": { "kind": { "enum": ["report", "answer", "review"] } } },
+      "then": { "required": ["reply_to"] }
+    }
+  ],
+  "$defs": {
+    "text": {
+      "type": "object",
+      "required": ["text"],
+      "properties": { "text": { "type": "string", "minLength": 1, "maxLength": 20000 } },
+      "additionalProperties": false
+    },
+    "task": {
+      "type": "object",
+      "required": ["task_id", "title", "instructions"],
+      "properties": {
+        "task_id": { "$ref": "defs.schema.json#/$defs/taskId" },
+        "parent_task_id": { "$ref": "defs.schema.json#/$defs/taskId" },
+        "review_of": {
+          "description": "Set on a guardian's review task: the worker task whose results it must independently re-check.",
+          "$ref": "defs.schema.json#/$defs/taskId"
+        },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "instructions": { "type": "string", "minLength": 1, "maxLength": 50000 },
+        "scope": {
+          "type": "object",
+          "properties": {
+            "code_version": { "$ref": "../common/defs.schema.json#/$defs/codeVersion" },
+            "paths": { "type": "array", "items": { "$ref": "../common/defs.schema.json#/$defs/repoPath" } },
+            "services": { "type": "array", "items": { "$ref": "../common/defs.schema.json#/$defs/serviceName" } }
+          },
+          "additionalProperties": false
+        },
+        "budget": { "$ref": "#/$defs/budget" },
+        "approval_of": { "description": "Set on a guardian's task to approve one computer action before it runs (docs/adr/0012).", "type": "string", "pattern": "^act_[0-9A-HJKMNP-TV-Z]{26}$" },
+        "anomaly": { "description": "Set on a subtask that follows up an anomaly of the investigation (docs/adr/0014).", "type": "string", "pattern": "^anm_[0-9A-HJKMNP-TV-Z]{26}$" },
+        "assess_anomalies": { "description": "Set on the logic head's task to decide these anomalies (docs/adr/0014).", "type": "array", "minItems": 1, "maxItems": 500, "items": { "type": "string", "pattern": "^anm_[0-9A-HJKMNP-TV-Z]{26}$" } },
+        "approval": { "description": "The user's choice for this chat (批准方式), made in the message box: ask = 全部问我 (every action except talking asks the user); auto (or absent) = 帮我审查 (only deleting files, and mouse or keyboard by computer use, ask the user); full = 完全放开 (nothing asks the user; the program's hard checks and the supervisor still apply).", "enum": ["ask", "auto", "full"] },
+        "engine": { "description": "Who does the work: claude_code / codex = the user's own Claude Code / Codex, headless (codedoctor/engines.py); absent = the project's agents.", "enum": ["claude_code", "codex"] },
+        "engine_model": { "description": "The engine's own model (its id, e.g. gpt-6.1-sol, opus); absent = the engine's own setting.", "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,79}$" },
+        "engine_effort": { "description": "The engine's own reasoning level, by its name; absent = the engine's own setting.", "enum": ["low", "medium", "high", "xhigh", "max", "ultra"] },
+        "chat": { "description": "Small talk (a greeting, thanks, who are you): answered in one short reply, not investigated (agents/smalltalk.py).", "const": true },
+        "chat_of": { "description": "The conversation this message continues: its first task. The window lists a conversation once and shows its turns in order.", "$ref": "defs.schema.json#/$defs/taskId" },
+        "history": { "description": "The conversation's earlier turns (Daemon.chat_history), given to the model like any chat; for a Lumen team member its earlier jobs (agents/team.py).", "type": "array", "maxItems": 40, "items": { "type": "object", "required": ["user", "assistant"], "additionalProperties": false, "properties": { "user": { "type": "string", "maxLength": 8000 }, "assistant": { "type": "string", "maxLength": 8000 } } } },
+        "toolsets": { "description": "Lumen's tools this investigation has (codedoctor/video.py): the ones the user called in with @ in the message box, or, when they called none, every one installed, for the team to pick from (Daemon.submit_task). Their tools exist only in this investigation.", "type": "array", "items": { "enum": ["codecut", "code3d", "codesound", "codepage", "codegame", "codedeck", "codedata", "codecad", "codelab", "codetools", "codefilm", "codepdf"] }, "uniqueItems": true, "maxItems": 12 },
+        "called": { "description": "The tools the user called in with @ (shown as chips, opened on the right), when toolsets holds more: [] when the team was given every installed tool (orchestration.called_tools).", "type": "array", "items": { "enum": ["codecut", "code3d", "codesound", "codepage", "codegame", "codedeck", "codedata", "codecad", "codelab", "codetools", "codefilm", "codepdf"] }, "uniqueItems": true, "maxItems": 12 },
+        "reasoning": { "description": "思考强度 for this investigation (every agent of it), over each agent's own.", "enum": ["off", "low", "medium", "high", "max"] },
+        "model": { "description": "The model the user chose for this investigation (every agent of it), instead of each agent's own. Fallbacks are not used then.", "type": "object", "properties": { "endpoint": { "type": "string", "minLength": 1 }, "model": { "type": "string", "minLength": 1 } }, "required": ["endpoint", "model"], "additionalProperties": false },
+        "squad": { "description": "The task's part in the big cluster's strategy (docs/adr/0016 item 14).", "enum": ["main", "backup", "scout"] },
+        "workdir": { "description": "A work folder other than the project: the task's tools read, change and test there.", "type": "string", "minLength": 1, "maxLength": 1000 },
+        "share": { "description": "Share of the investigation budget for this task and its guardian's review.", "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "files": { "description": "Project files this subtask's worker owns and may change (docs/adr/0016).", "type": "array", "minItems": 1, "maxItems": 200, "items": { "type": "string", "minLength": 1, "maxLength": 500 } },
+        "order": { "description": "The delegating head's own words, before the system added the files and context (the duplicate-work check).", "type": "string", "minLength": 1, "maxLength": 50000 },
+        "images": { "description": "Image evidence (screenshots) shown with the instructions.", "type": "array", "maxItems": 4, "items": { "$ref": "../evidence/evidence-id.schema.json" } },
+        "context": {
+          "description": "Claims to verify and evidence to start from, attached by the delegating head (docs/adr/0009). Their text is also in the instructions; the ids let the worker's working memory follow their current status.",
+          "type": "object",
+          "properties": {
+            "claims": { "type": "array", "maxItems": 20, "items": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" } },
+            "evidence": { "type": "array", "maxItems": 30, "items": { "$ref": "../evidence/evidence-id.schema.json" } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "budget": {
+      "description": "Hard limits for one task. When either is reached the agent stops and reports 'budget_exhausted'.",
+      "type": "object",
+      "properties": {
+        "max_steps": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "max_tokens": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "report": {
+      "type": "object",
+      "required": ["task_id", "outcome", "summary"],
+      "properties": {
+        "task_id": { "$ref": "defs.schema.json#/$defs/taskId" },
+        "outcome": {
+          "description": "done: finished. failed: could not do it. blocked: needs something (model down with no user-configured fallback, permission denied). budget_exhausted / stalled: stopped by limits or by the no-progress check. cancelled: by user/system. interrupted: the service stopped mid-task; the side-effect ledger lists what is known and unknown, and the task can be continued with resume_task.",
+          "enum": ["done", "failed", "blocked", "budget_exhausted", "stalled", "cancelled", "interrupted"]
+        },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 20000 },
+        "claims": { "type": "array", "items": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" } },
+        "evidence": { "type": "array", "items": { "$ref": "../evidence/evidence-id.schema.json" } },
+        "open_questions": { "type": "array", "items": { "type": "string", "maxLength": 2000 } },
+        "usage": { "$ref": "#/$defs/usage" }
+      },
+      "additionalProperties": false
+    },
+    "usage": {
+      "type": "object",
+      "properties": {
+        "steps": { "type": "integer", "minimum": 0 },
+        "model_calls": { "type": "integer", "minimum": 0 },
+        "input_tokens": { "type": "integer", "minimum": 0 },
+        "output_tokens": { "type": "integer", "minimum": 0 },
+        "cached_tokens": { "type": "integer", "minimum": 0 },
+        "wall_ms": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "reviewRequest": {
+      "type": "object",
+      "required": ["claim_ids"],
+      "properties": {
+        "claim_ids": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" } },
+        "focus": { "type": "string", "maxLength": 4000 }
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "description": "Guardian / investigator output. Only three verdicts: a counterexample, an independent re-check, or a statement of what evidence is missing. 'Looks reasonable' is not a review.",
+      "type": "object",
+      "required": ["review_id", "claim_id", "verdict", "notes"],
+      "properties": {
+        "review_id": { "$ref": "defs.schema.json#/$defs/reviewId" },
+        "claim_id": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" },
+        "verdict": { "enum": ["counterexample", "reverified", "insufficient_evidence"] },
+        "evidence": { "type": "array", "items": { "$ref": "../evidence/evidence-id.schema.json" } },
+        "notes": { "type": "string", "minLength": 1, "maxLength": 20000 }
+      },
+      "additionalProperties": false,
+      "if": { "properties": { "verdict": { "enum": ["counterexample", "reverified"] } } },
+      "then": { "required": ["evidence"], "properties": { "evidence": { "minItems": 1 } } }
+    },
+    "escalation": {
+      "type": "object",
+      "required": ["reason", "detail"],
+      "properties": {
+        "task_id": { "$ref": "defs.schema.json#/$defs/taskId" },
+        "reason": { "enum": ["model_unavailable", "account", "permission_needed", "contradiction", "budget", "stalled", "anomaly", "interrupted", "head_disagreement", "safety_veto", "other"] },
+        "detail": { "type": "string", "minLength": 1, "maxLength": 20000 }
+      },
+      "additionalProperties": false
+    },
+    "control": {
+      "type": "object",
+      "required": ["command"],
+      "properties": {
+        "command": { "enum": ["pause", "resume", "cancel_task", "resume_task", "stop"] },
+        "task_id": { "$ref": "defs.schema.json#/$defs/taskId" },
+        "reason": { "type": "string", "maxLength": 2000 }
+      },
+      "additionalProperties": false,
+      "if": { "properties": { "command": { "enum": ["cancel_task", "resume_task"] } } },
+      "then": { "required": ["task_id"] }
+    }
+  }
+}

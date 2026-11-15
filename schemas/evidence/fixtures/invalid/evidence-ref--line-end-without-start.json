@@ -1,0 +1,22 @@
+{
+  "description": "locator.line_end requires line_start.",
+  "schema": "evidence/evidence-ref.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "dependentRequired"
+  },
+  "instance": {
+    "id": "ev:code:9fceb02d0ae598e95dc970b74767f19372d61af8:server/shop.py#ShopService.buy@42d05c02eaa9ba3633aed262f62090a10fa622ce5fe46870d92b7000969cd4dd:L42-L61",
+    "role": "supports",
+    "shows": "buy() returns early when inventory_version differs, before writing orders",
+    "assert": [
+      {
+        "op": "text_contains",
+        "text": "if inventory_version != player.inventory_version"
+      }
+    ],
+    "locator": {
+      "line_end": 49
+    }
+  }
+}

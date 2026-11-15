@@ -1,0 +1,48 @@
+{
+  "description": "Dual heads, a worker and its paired guardian.",
+  "schema": "config/project.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.config.project/0",
+    "project": {
+      "name": "shop",
+      "root": "D:/x"
+    },
+    "endpoints": [
+      {
+        "id": "deepseek",
+        "kind": "openai_compatible",
+        "base_url": "https://api.deepseek.com/v1",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "local": false
+      }
+    ],
+    "agents": [
+      {
+        "id": "head-dispatch",
+        "role": "head_dispatch",
+        "endpoint": "deepseek",
+        "model": "deepseek-chat"
+      },
+      {
+        "id": "head-logic",
+        "role": "head_logic",
+        "endpoint": "deepseek",
+        "model": "deepseek-chat"
+      },
+      {
+        "id": "worker-1",
+        "role": "worker",
+        "endpoint": "deepseek",
+        "model": "deepseek-chat"
+      },
+      {
+        "id": "guardian-1",
+        "role": "guardian",
+        "endpoint": "deepseek",
+        "model": "deepseek-chat",
+        "supervises": "worker-1"
+      }
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+# Code Doctor basic mode: one agent, models chosen by you.
+#   codedoctor check --config examples/basic-mode.toml
+#   codedoctor run   --config examples/basic-mode.toml --agent doctor "点击购买按钮没有反应，帮我查原因"
+#   codedoctor serve --config examples/basic-mode.toml
+
+cd_schema = "cd.config.project/0"
+
+[project]
+name = "my-project"
+root = "D:/path/to/your/project"     # the project to examine; tools cannot leave it
+code_data_class = "internal"          # raise to "confidential" or "local_only" to keep code off remote models
+
+# Local Ollama (start it with `ollama serve`, then `ollama pull <model>`).
+[[endpoints]]
+id = "local-ollama"
+kind = "openai_compatible"
+base_url = "http://127.0.0.1:11434/v1"
+local = true
+max_concurrency = 1
+
+# A cloud endpoint. The key is read from the environment variable, never from this file.
+[[endpoints]]
+id = "deepseek"
+kind = "openai_compatible"
+base_url = "https://api.deepseek.com/v1"
+api_key_env = "DEEPSEEK_API_KEY"
+local = false
+max_data_class = "internal"
+
+[[agents]]
+id = "doctor"
+role = "general"
+endpoint = "local-ollama"
+model = "qwen3:8b"
+# Optional. Without fallbacks the agent stops and asks you when its model fails.
+# fallbacks = [{ endpoint = "deepseek", model = "deepseek-chat" }]
+context_budget_tokens = 32000
+memory = { recall_k = 8, shared_read = true }
+
+[permissions]
+run_command = "allowlist"
+command_allowlist = ["git log", "git diff", "git status"]
+
+[defaults]
+budget = { max_steps = 40, max_tokens = 300000 }
+stall_steps = 6

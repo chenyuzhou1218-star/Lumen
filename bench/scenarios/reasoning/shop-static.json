@@ -1,0 +1,29 @@
+{
+  "id": "shop-static",
+  "kind": "static",
+  "description": "Graph-level reasoning with no model: are the 7 defects planted in samples/shop-coupling found and ranked high, does common-cause analysis put the shared root first, and does impact analysis reach across the client/server boundary.",
+  "project": "samples/shop-coupling",
+  "name": "shop",
+  "defects": [
+    {"id": "d1", "what": "player.gold 被三个入口写入，没有锁也没有事务", "pattern": "shared_state_multi_writer", "entity": "ent:state:shop:py/gold"},
+    {"id": "d2", "what": "reconnect 重放 settle，add_gold 没有幂等键", "pattern": "retry_path_to_write", "entity": "ent:symbol:shop:server/session.py#reconnect"},
+    {"id": "d3", "what": "retryFetch 重试购买，buy 没有幂等键", "pattern": "retry_path_to_write", "entity": "ent:symbol:shop:web/net.js#retryFetch"},
+    {"id": "d4", "what": "spend_gold 写 players 和 ledger 没有事务", "pattern": "multi_write_without_transaction", "entity": "ent:symbol:shop:server/wallet.py#spend_gold"},
+    {"id": "d5", "what": "spend_gold 返回 None，buy 把它变成 200 {}", "pattern": "silent_noop_path", "entity": "ent:symbol:shop:server/wallet.py#spend_gold"},
+    {"id": "d6", "what": "hud 监听 gold_changed，但没有人发出", "pattern": "listener_without_event", "entity": "ent:event:shop:gold_changed"},
+    {"id": "d7", "what": "客户端调用 /api/match/report，服务端没有路由", "pattern": "client_route_without_handler", "entity": "ent:route:shop:POST:/api/match/report"}
+  ],
+  "common_cause": [
+    {"id": "cc1", "symptoms": ["ent:route:shop:POST:/api/shop/buy", "ent:route:shop:POST:/api/session/reconnect"], "expect": "ent:state:shop:py/gold"},
+    {"id": "cc2", "symptoms": ["ent:route:shop:POST:/api/session/reconnect", "ent:route:shop:POST:/api/match/settle"], "expect": "ent:symbol:shop:server/wallet.py#add_gold"},
+    {"id": "cc3", "symptoms": ["ent:symbol:shop:web/shop.js#ShopUI.onBuyClick", "ent:symbol:shop:web/match.js#finishMatch"], "expect": "ent:state:shop:py/gold"}
+  ],
+  "impact": [
+    {"id": "im1", "entity": "ent:symbol:shop:server/wallet.py#spend_gold", "depth": 6,
+     "affected_by": ["ent:route:shop:POST:/api/shop/buy", "ent:symbol:shop:web/shop.js#ShopUI.onBuyClick"],
+     "affects": ["ent:table:main:ledger", "ent:state:shop:py/gold"]},
+    {"id": "im2", "entity": "ent:symbol:shop:server/wallet.py#add_gold", "depth": 6,
+     "affected_by": ["ent:route:shop:POST:/api/session/reconnect", "ent:route:shop:POST:/api/match/settle", "ent:symbol:shop:web/match.js#finishMatch"],
+     "affects": ["ent:table:main:ledger", "ent:state:shop:py/gold"]}
+  ]
+}

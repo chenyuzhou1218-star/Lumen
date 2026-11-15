@@ -1,0 +1,34 @@
+{
+  "description": "A gap assessment computed by Code Doctor itself.",
+  "schema": "evidence/evidence-record.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.evidence.record/0",
+    "id": "ev:gap:01JB8Z6000000000000000GP01",
+    "kind": "gap",
+    "created_at": "2026-10-24T09:10:08Z",
+    "content": {
+      "sha256": "c978145eb165d12a8f6d9b4af9aa2d87d32c597e3aa859e6b0edebee1b3da64a",
+      "media_type": "application/json",
+      "size_bytes": 2210
+    },
+    "binding": {
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+      "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+      "action_id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W",
+      "services": [
+        "shop-api"
+      ]
+    },
+    "provenance": {
+      "source": "system",
+      "collected_by": "trace.gap/0.1.0"
+    },
+    "data_class": "internal",
+    "redaction": {
+      "applied": false,
+      "policy_id": "default/0"
+    },
+    "content_trust": "system_computed"
+  }
+}

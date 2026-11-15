@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<style>
+html, body { margin: 0; height: 100%; background: #101014; overflow: hidden; font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, "Microsoft YaHei UI", sans-serif; }
+#game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#hud { position: fixed; left: 16px; top: 16px; color: #111113; font-size: 14px; font-weight: 600; line-height: 1.75; pointer-events: none; padding: 10px 14px 10px 14px; border-radius: 12px;
+  background: rgba(255, 255, 255, .82); -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5); border: 1px solid rgba(255, 255, 255, .7);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 10px 30px rgba(0, 0, 0, .12); font-variant-numeric: tabular-nums; letter-spacing: -.005em; }
+#hud:empty { display: none; }
+#banner { position: fixed; left: 50%; top: 34%; transform: translate(-50%, 6px) scale(.98); text-align: center; color: #111113; font-size: clamp(18px, 3.4vw, 30px); font-weight: 700; letter-spacing: -.02em;
+  pointer-events: none; opacity: 0; transition: opacity .25s, transform .25s; padding: 14px 26px; border-radius: 16px; max-width: 86vw;
+  background: rgba(255, 255, 255, .86); -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5); box-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 18px 50px rgba(0, 0, 0, .18); }
+#banner[style*="opacity: 1"] { transform: translate(-50%, 0) scale(1); }
+.bar { width: 180px; height: 6px; border-radius: 3px; background: rgba(17, 17, 19, .1); overflow: hidden; margin: 7px 0 5px; }
+.bar i { display: block; height: 100%; border-radius: 3px; transition: width .2s; }
+#minimap { position: fixed; right: 16px; top: 16px; border-radius: 14px; pointer-events: none; border: 1px solid rgba(255, 255, 255, .7); box-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 10px 30px rgba(0, 0, 0, .12); }
+#stick { position: fixed; left: 18px; bottom: 18px; width: 128px; height: 128px; border-radius: 50%; background: rgba(255, 255, 255, .28); border: 1px solid rgba(255, 255, 255, .7); touch-action: none;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0, 0, 0, .12); }
+#oops { position: fixed; left: 20px; right: 20px; top: 20px; color: #c8322b; font: 13px/1.6 "Cascadia Mono", Consolas, monospace; white-space: pre-wrap; pointer-events: none; padding: 14px 16px; border-radius: 12px;
+  background: rgba(255, 255, 255, .95); box-shadow: 0 10px 30px rgba(0, 0, 0, .16); }
+</style>
+</head>
+<body>
+<script>window.__ASSETS = {{assets}};</script>
+<script>{{engine}}</script>
+<script>
+addEventListener('error', function (e) { var b = document.createElement('div'); b.id = 'oops'; b.textContent = e.message + '  (' + e.lineno + ')'; document.body.append(b); });
+addEventListener('unhandledrejection', function (e) { var b = document.createElement('div'); b.id = 'oops'; b.textContent = String(e.reason && e.reason.stack || e.reason); document.body.append(b); console.error(String(e.reason)); });
+(async function () {
+{{game}}
+__start();
+}());
+</script>
+</body>
+</html>

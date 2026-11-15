@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/evidence/evidence-id.schema.json",
+  "title": "Evidence id v0",
+  "description": "Every piece of evidence has exactly one id of the form 'ev:<kind>:<locator>'. The kind fixes the locator grammar. Reserved characters (':' '#' '@' '/' inside names, whitespace, '%') in paths, symbols and test names are percent-encoded. An id being well-formed says nothing about whether the evidence exists or supports anything; see validation-result.schema.json.",
+  "anyOf": [
+    { "$ref": "#/$defs/span" },
+    { "$ref": "#/$defs/trace" },
+    { "$ref": "#/$defs/action" },
+    { "$ref": "#/$defs/code" },
+    { "$ref": "#/$defs/log" },
+    { "$ref": "#/$defs/test" },
+    { "$ref": "#/$defs/blob" },
+    { "$ref": "#/$defs/db" },
+    { "$ref": "#/$defs/gap" },
+    { "$ref": "#/$defs/corr" },
+    { "$ref": "#/$defs/health" },
+    { "$ref": "#/$defs/coverage" }
+  ],
+  "$defs": {
+    "span": {
+      "description": "ev:span:<trace_id>/<span_id>",
+      "type": "string",
+      "pattern": "^ev:span:(?!0{32})[0-9a-f]{32}/(?!0{16})[0-9a-f]{16}$"
+    },
+    "trace": {
+      "description": "ev:trace:<trace_id>",
+      "type": "string",
+      "pattern": "^ev:trace:(?!0{32})[0-9a-f]{32}$"
+    },
+    "action": {
+      "description": "ev:action:<cd.action.id> - an assembled action lifecycle (event/action).",
+      "type": "string",
+      "pattern": "^ev:action:[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "code": {
+      "description": "ev:code:<code_version>:<repo_path>[#<symbol>]@<sha256 of the referenced content>[:L<start>[-L<end>]]. The content hash anchors the reference even after line numbers drift.",
+      "type": "string",
+      "pattern": "^ev:code:([0-9a-f]{40}|[0-9a-f]{64}|wt-[0-9a-f]{64}):(?!(?:\\.|%2[eE])+(?:/|#|@|$))[^/:#@\\s\\\\]+(?:/(?!(?:\\.|%2[eE])+(?:/|#|@|$))[^/:#@\\s\\\\]+)*(#[A-Za-z0-9_$.<>~%-]+)?@[0-9a-f]{64}(:L[1-9][0-9]*(-L[1-9][0-9]*)?)?$"
+    },
+    "log": {
+      "description": "ev:log:<sha256 of the stored log snapshot blob>:L<start>[-L<end>]",
+      "type": "string",
+      "pattern": "^ev:log:[0-9a-f]{64}:L[1-9][0-9]*(-L[1-9][0-9]*)?$"
+    },
+    "test": {
+      "description": "ev:test:<run ulid>/<percent-encoded test name>. Also used for reproduction and fault-injection runs.",
+      "type": "string",
+      "pattern": "^ev:test:[0-9A-HJKMNP-TV-Z]{26}/[^\\s]{1,512}$"
+    },
+    "blob": {
+      "description": "ev:blob:<sha256> - raw content (screenshot, payload, file snapshot) in the content-addressed store.",
+      "type": "string",
+      "pattern": "^ev:blob:[0-9a-f]{64}$"
+    },
+    "db": {
+      "description": "ev:db:<ulid> - a recorded database query result or schema snapshot.",
+      "type": "string",
+      "pattern": "^ev:db:[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "gap": {
+      "description": "ev:gap:<ulid> - a gap assessment (event/gap-assessment).",
+      "type": "string",
+      "pattern": "^ev:gap:[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "corr": {
+      "description": "ev:corr:<ulid> - a WebSocket send/recv correlation (event/ws-correlation).",
+      "type": "string",
+      "pattern": "^ev:corr:[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "health": {
+      "description": "ev:health:<ulid> - a telemetry health report (event/telemetry-health).",
+      "type": "string",
+      "pattern": "^ev:health:[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "coverage": {
+      "description": "ev:coverage:<ulid> - a probe coverage declaration (event/coverage).",
+      "type": "string",
+      "pattern": "^ev:coverage:[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "telemetry": {
+      "description": "Kinds that directly record what happened at runtime. Used by the claim schema for 'observed' facts.",
+      "type": "string",
+      "pattern": "^ev:(span|trace|action|log|db|gap|corr|blob):"
+    }
+  }
+}

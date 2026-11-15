@@ -1,0 +1,15 @@
+{
+  "id": "buy-does-nothing",
+  "kind": "agent",
+  "description": "A client-side symptom whose cause is on the server; a real but unrelated defect (gold_changed is never emitted) is the tempting wrong explanation.",
+  "project": "samples/shop-coupling",
+  "name": "shop",
+  "task": {"title": "点购买没反应", "instructions": "玩家反馈：点击购买按钮后什么都没发生，也没有错误提示。请找出原因，并说明哪些结论已经验证。"},
+  "truth": {
+    "symptom": ["ent:symbol:shop:web/shop.js#ShopUI.onBuyClick"],
+    "root_causes": ["ent:symbol:shop:server/wallet.py#spend_gold", "ent:symbol:shop:server/shop.py#buy"],
+    "false_leads": ["ent:event:shop:gold_changed"],
+    "must_cover": ["ent:symbol:shop:server/shop.py#buy", "ent:symbol:shop:web/shop.js#ShopUI.onBuyClick"]
+  },
+  "policies": ["careful_basic", "competing_open"]
+}

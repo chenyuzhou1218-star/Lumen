@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/event/telemetry-health.schema.json",
+  "title": "Telemetry health report v0",
+  "description": "Periodic self-report from a probe, collector or Code Doctor's own ingest. Gap assessment reads these to decide whether a missing span could be a telemetry loss rather than a program bug.",
+  "type": "object",
+  "required": ["cd_schema", "id", "component", "heartbeat_seq", "window", "received_at", "counters"],
+  "properties": {
+    "cd_schema": { "const": "cd.event.telemetry-health/0" },
+    "id": { "$ref": "../evidence/evidence-id.schema.json#/$defs/health" },
+    "component": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": { "enum": ["probe", "collector", "ingest"] },
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 }
+      },
+      "additionalProperties": false,
+      "if": { "properties": { "type": { "const": "probe" } } },
+      "then": { "properties": { "id": { "pattern": "^prb_[0-9A-HJKMNP-TV-Z]{26}$" } } }
+    },
+    "heartbeat_seq": {
+      "description": "Monotonic per component. A jump in sequence means reports were lost.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "window": {
+      "type": "object",
+      "required": ["start_unix_nano", "end_unix_nano"],
+      "properties": {
+        "start_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" },
+        "end_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" }
+      },
+      "additionalProperties": false
+    },
+    "received_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "counters": {
+      "description": "Counts within the window. Probes report spans_*; collectors/ingest report items_*.",
+      "type": "object",
+      "properties": {
+        "spans_started": { "type": "integer", "minimum": 0 },
+        "spans_ended": { "type": "integer", "minimum": 0 },
+        "spans_not_sampled": { "type": "integer", "minimum": 0 },
+        "spans_exported": { "type": "integer", "minimum": 0 },
+        "spans_dropped": {
+          "description": "Dropped for any reason other than sampling (queue full, export gave up, shutdown before flush).",
+          "type": "integer",
+          "minimum": 0
+        },
+        "export_failures": { "type": "integer", "minimum": 0 },
+        "export_retries": { "type": "integer", "minimum": 0 },
+        "items_received": { "type": "integer", "minimum": 0 },
+        "items_rejected": { "type": "integer", "minimum": 0 },
+        "items_dropped": { "type": "integer", "minimum": 0 },
+        "items_persisted": { "type": "integer", "minimum": 0 },
+        "propagation_extract_failures": {
+          "description": "Incoming requests/messages whose trace context could not be parsed.",
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    },
+    "queue": {
+      "type": "object",
+      "required": ["length_max", "capacity"],
+      "properties": {
+        "length_max": { "type": "integer", "minimum": 0 },
+        "capacity": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "last_export_ok_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" },
+    "ingest_watermark_unix_nano": {
+      "description": "Ingest/collector only: every item with end time <= watermark has been persisted.",
+      "$ref": "../common/defs.schema.json#/$defs/unixNano"
+    },
+    "clock": {
+      "type": "object",
+      "required": ["offset_ms_estimate", "method"],
+      "properties": {
+        "offset_ms_estimate": { "type": "number" },
+        "uncertainty_ms": { "type": "number", "minimum": 0 },
+        "method": { "enum": ["ntp", "collector_handshake", "same_host", "unknown"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

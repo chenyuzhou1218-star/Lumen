@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/event/gap-assessment.schema.json",
+  "title": "Gap assessment v0",
+  "description": "Decides, for one expected stage of one action, whether the stage happened. The central rule: a missing span is only 'confirmed_absent' when every way the telemetry itself could have lost it has been checked and ruled out, each with evidence. Anything less is 'unknown', 'not_instrumented' or 'telemetry_degraded' - never a program bug.",
+  "type": "object",
+  "required": ["cd_schema", "id", "action", "template", "stage_id", "expected_layer", "window", "verdict", "conclusive", "checks", "assessed_at", "assessor"],
+  "properties": {
+    "cd_schema": { "const": "cd.event.gap-assessment/0" },
+    "id": { "$ref": "../evidence/evidence-id.schema.json#/$defs/gap" },
+    "action": { "$ref": "../evidence/evidence-id.schema.json#/$defs/action" },
+    "template": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^tpl:[a-z0-9][a-z0-9._-]{0,127}$" },
+        "version": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "stage_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$" },
+    "expected_layer": { "$ref": "../common/defs.schema.json#/$defs/layer" },
+    "expected_service": { "$ref": "../common/defs.schema.json#/$defs/serviceName" },
+    "window": {
+      "description": "Interval searched: action start until stage deadline plus the exporter's maximum flush delay.",
+      "type": "object",
+      "required": ["start_unix_nano", "end_unix_nano"],
+      "properties": {
+        "start_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" },
+        "end_unix_nano": { "$ref": "../common/defs.schema.json#/$defs/unixNano" }
+      },
+      "additionalProperties": false
+    },
+    "verdict": {
+      "description": "present: matching span(s) found. confirmed_absent: not found AND all checks passed - the event really did not happen. not_instrumented: nothing observes this layer/scope. telemetry_degraded: a probe/collector/ingest problem could explain the absence. unknown: not found, but at least one check could not be decided.",
+      "enum": ["present", "confirmed_absent", "not_instrumented", "telemetry_degraded", "unknown"]
+    },
+    "conclusive": {
+      "description": "Only 'present' and 'confirmed_absent' are conclusive. Analysis must not treat other verdicts as facts about the program.",
+      "type": "boolean"
+    },
+    "matched_spans": {
+      "type": "array",
+      "items": { "$ref": "../evidence/evidence-id.schema.json#/$defs/span" }
+    },
+    "checks": {
+      "type": "object",
+      "required": [
+        "template_confirmed", "coverage_declared", "probe_alive", "sampled",
+        "exporter_healthy", "no_drops", "collector_healthy", "ingest_complete",
+        "context_propagated", "window_elapsed", "clock_skew_bounded"
+      ],
+      "properties": {
+        "template_confirmed": { "$ref": "#/$defs/check", "description": "The chain template was confirmed by the user (an AI-proposed expectation can be wrong)." },
+        "coverage_declared": { "$ref": "#/$defs/check", "description": "A coverage declaration covers this layer, service and scope (route/message/table) for the whole window." },
+        "probe_alive": { "$ref": "#/$defs/check", "description": "Heartbeats from the covering probe arrived for the whole window with no sequence gap." },
+        "sampled": { "$ref": "#/$defs/check", "description": "This trace was sampled at this layer: always_on, or parent-based with a sampled parent, or a recorded sampling decision." },
+        "exporter_healthy": { "$ref": "#/$defs/check", "description": "No export failures in the window, and a successful export after the window ended." },
+        "no_drops": { "$ref": "#/$defs/check", "description": "spans_dropped = 0 and the queue never reached capacity in the window." },
+        "collector_healthy": { "$ref": "#/$defs/check", "description": "Collector (if any) reported no drops/rejections in the window." },
+        "ingest_complete": { "$ref": "#/$defs/check", "description": "Ingest watermark is past the window end: everything that arrived has been persisted." },
+        "context_propagated": { "$ref": "#/$defs/check", "description": "The upstream stage is present and its span shows trace context was actually injected (cd.propagation.injected=true), and downstream reported no extract failures." },
+        "window_elapsed": { "$ref": "#/$defs/check", "description": "Stage deadline plus maximum flush delay has passed; late spans are no longer expected." },
+        "clock_skew_bounded": { "$ref": "#/$defs/check", "description": "Clock offset between the involved hosts is small relative to the window." }
+      },
+      "additionalProperties": false
+    },
+    "explanation": { "type": "string", "maxLength": 4096 },
+    "assessed_at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "assessor": { "type": "string", "pattern": "^[a-z0-9_.-]+/[0-9][0-9A-Za-z.+-]*$" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "verdict": { "enum": ["present", "confirmed_absent"] } } },
+      "then": { "properties": { "conclusive": { "const": true } } },
+      "else": { "properties": { "conclusive": { "const": false } } }
+    },
+    {
+      "if": { "properties": { "verdict": { "const": "present" } } },
+      "then": { "required": ["matched_spans"], "properties": { "matched_spans": { "minItems": 1 } } }
+    },
+    {
+      "if": { "properties": { "verdict": { "not": { "const": "present" } } } },
+      "then": { "properties": { "matched_spans": { "maxItems": 0 } } }
+    },
+    {
+      "description": "confirmed_absent requires every check to pass, and every telemetry-health check to cite evidence.",
+      "if": { "properties": { "verdict": { "const": "confirmed_absent" } } },
+      "then": {
+        "properties": {
+          "checks": {
+            "additionalProperties": false,
+            "properties": {
+              "template_confirmed": { "properties": { "status": { "const": "pass" } } },
+              "coverage_declared": { "$ref": "#/$defs/passedWithEvidence" },
+              "probe_alive": { "$ref": "#/$defs/passedWithEvidence" },
+              "sampled": { "$ref": "#/$defs/passedWithEvidence" },
+              "exporter_healthy": { "$ref": "#/$defs/passedWithEvidence" },
+              "no_drops": { "$ref": "#/$defs/passedWithEvidence" },
+              "collector_healthy": {
+                "description": "not_applicable when probes export straight to Code Doctor ingest with no collector in between.",
+                "anyOf": [
+                  { "$ref": "#/$defs/passedWithEvidence" },
+                  { "properties": { "status": { "const": "not_applicable" } } }
+                ]
+              },
+              "ingest_complete": { "$ref": "#/$defs/passedWithEvidence" },
+              "context_propagated": { "$ref": "#/$defs/passedWithEvidence" },
+              "window_elapsed": { "description": "Never not_applicable: late spans must no longer be expected.", "properties": { "status": { "const": "pass" } } },
+              "clock_skew_bounded": {
+                "description": "not_applicable only with a note saying why (e.g. every involved span came from the same host clock).",
+                "anyOf": [
+                  { "properties": { "status": { "const": "pass" } } },
+                  { "required": ["note"], "properties": { "status": { "const": "not_applicable" } } }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "verdict": { "const": "not_instrumented" } } },
+      "then": { "properties": { "checks": { "properties": { "coverage_declared": { "properties": { "status": { "const": "fail" } } } } } } }
+    },
+    {
+      "description": "telemetry_degraded must name at least one failed telemetry check.",
+      "if": { "properties": { "verdict": { "const": "telemetry_degraded" } } },
+      "then": {
+        "properties": {
+          "checks": {
+            "anyOf": [
+              { "properties": { "probe_alive": { "$ref": "#/$defs/failed" } } },
+              { "properties": { "exporter_healthy": { "$ref": "#/$defs/failed" } } },
+              { "properties": { "no_drops": { "$ref": "#/$defs/failed" } } },
+              { "properties": { "collector_healthy": { "$ref": "#/$defs/failed" } } },
+              { "properties": { "ingest_complete": { "$ref": "#/$defs/failed" } } },
+              { "properties": { "sampled": { "$ref": "#/$defs/failed" } } }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "check": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["pass", "fail", "unknown", "not_applicable"] },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "../evidence/evidence-id.schema.json" }
+        },
+        "note": { "type": "string", "maxLength": 1024 }
+      },
+      "additionalProperties": false
+    },
+    "passed": {
+      "properties": { "status": { "enum": ["pass", "not_applicable"] } }
+    },
+    "passedWithEvidence": {
+      "required": ["evidence"],
+      "properties": {
+        "status": { "const": "pass" },
+        "evidence": { "minItems": 1 }
+      }
+    },
+    "failed": {
+      "required": ["status"],
+      "properties": { "status": { "const": "fail" } }
+    }
+  }
+}

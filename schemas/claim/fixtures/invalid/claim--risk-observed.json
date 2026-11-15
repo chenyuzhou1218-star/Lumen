@@ -1,0 +1,71 @@
+{
+  "description": "Something that has not happened cannot be observed.",
+  "schema": "claim/claim.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "not",
+    "path": "/evidence_level"
+  },
+  "instance": {
+    "cd_schema": "cd.claim/0",
+    "id": "clm_01JB8Z8000000000000000CM03",
+    "claim_type": "risk_prediction",
+    "created_at": "2026-10-24T09:20:00Z",
+    "author": {
+      "kind": "agent",
+      "id": "head-logic",
+      "role": "head_logic",
+      "model": {
+        "provider": "deepseek",
+        "model": "deepseek-chat"
+      },
+      "task_id": "task_01JB8Z2000000000000000TK01"
+    },
+    "statement": {
+      "text": "If the client retries POST /api/shop/buy after a timeout, gold can be deducted twice because the endpoint is not idempotent.",
+      "subject": "ent:route:shop-api:POST:/api/shop/buy",
+      "relation": "may_cause",
+      "object": "ent:invariant:gold-conservation"
+    },
+    "evidence_level": "observed",
+    "scope": {
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+      "services": [
+        "shop-web",
+        "shop-api"
+      ]
+    },
+    "evidence": [
+      {
+        "id": "ev:gap:01JB8Z6000000000000000GP01",
+        "role": "supports",
+        "shows": "orders INSERT confirmed absent",
+        "assert": [
+          {
+            "op": "gap_verdict",
+            "verdict": "confirmed_absent"
+          }
+        ],
+        "expect_binding": {
+          "action_id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W"
+        }
+      }
+    ],
+    "conditions": [
+      {
+        "text": "response lost after the players.gold UPDATE commits",
+        "fault_model": "fm:response_lost_after_commit"
+      },
+      {
+        "text": "client fetch wrapper retries once on timeout",
+        "fault_model": "fm:duplicate_request"
+      }
+    ],
+    "falsification": {
+      "method": "fault_injection",
+      "intervention": true,
+      "description": "Drop the response via proxy after commit, let the client retry, then compare gold before/after against one item price."
+    },
+    "status": "proposed"
+  }
+}

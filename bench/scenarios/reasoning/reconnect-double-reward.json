@@ -1,0 +1,15 @@
+{
+  "id": "reconnect-double-reward",
+  "kind": "agent",
+  "description": "A reported symptom with one true cause on the server and a plausible wrong lead on the client.",
+  "project": "samples/shop-coupling",
+  "name": "shop",
+  "task": {"title": "重连后奖励发两次", "instructions": "玩家反馈：断线重连之后，比赛奖励偶尔会到账两次。请找出原因，并说明哪些结论已经验证。"},
+  "truth": {
+    "symptom": ["ent:state:shop:py/gold", "ent:table:main:ledger"],
+    "root_causes": ["ent:symbol:shop:server/session.py#reconnect", "ent:symbol:shop:server/wallet.py#add_gold"],
+    "false_leads": ["ent:symbol:shop:web/match.js#finishMatch", "ent:symbol:shop:web/net.js#retryFetch"],
+    "must_cover": ["ent:symbol:shop:server/rewards.py#settle", "ent:symbol:shop:server/wallet.py#add_gold", "ent:table:main:ledger"]
+  },
+  "policies": ["careful_cluster", "jumps_to_conclusion"]
+}

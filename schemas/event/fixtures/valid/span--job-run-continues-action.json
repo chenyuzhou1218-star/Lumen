@@ -1,0 +1,36 @@
+{
+  "description": "Async job in another trace, joined to the action by a span link and cd.action.id.",
+  "schema": "event/span.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.event.span/0",
+    "trace_id": "7c2f0e9a41d84b6f9a3e5d1c0b8a7f62",
+    "span_id": "2a1b2c3d4e5f6071",
+    "name": "settle_match_rewards",
+    "cd_kind": "job.run",
+    "otel_kind": "consumer",
+    "start_time_unix_nano": "1761300000500000000",
+    "end_time_unix_nano": "1761300000640000000",
+    "status": {
+      "code": "unset"
+    },
+    "service": {
+      "name": "arena-server",
+      "instance_id": "arena-eu-1",
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+    },
+    "probe_id": "prb_01JB8Z0000000000000000GMSV",
+    "attributes": {
+      "cd.action.id": "01JB8Z4K3M5N6P7Q8R9S0T1V3X",
+      "cd.job.id": "job-5521",
+      "cd.job.name": "settle_match_rewards"
+    },
+    "links": [
+      {
+        "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+        "span_id": "d1b2c3d4e5f60718",
+        "relation": "continues_action"
+      }
+    ]
+  }
+}

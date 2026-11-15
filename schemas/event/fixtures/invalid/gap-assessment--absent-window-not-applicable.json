@@ -1,0 +1,91 @@
+{
+  "description": "ChatGPT review R2: confirmed_absent may not skip waiting for late spans.",
+  "schema": "event/gap-assessment.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "const",
+    "path": "/checks/window_elapsed/status"
+  },
+  "instance": {
+    "cd_schema": "cd.event.gap-assessment/0",
+    "id": "ev:gap:01JB8Z6000000000000000GP01",
+    "action": "ev:action:01JB8Z4K3M5N6P7Q8R9S0T1V2W",
+    "template": {
+      "id": "tpl:shop.buy",
+      "version": 3
+    },
+    "stage_id": "db-write",
+    "expected_layer": "db",
+    "expected_service": "shop-api",
+    "window": {
+      "start_unix_nano": "1761300000000000000",
+      "end_unix_nano": "1761300003000000000"
+    },
+    "verdict": "confirmed_absent",
+    "conclusive": true,
+    "checks": {
+      "template_confirmed": {
+        "status": "pass"
+      },
+      "coverage_declared": {
+        "status": "pass",
+        "evidence": [
+          "ev:coverage:01JB8Z1000000000000000CV02"
+        ],
+        "note": "shop-api probe lists /api/shop/buy and table orders"
+      },
+      "probe_alive": {
+        "status": "pass",
+        "evidence": [
+          "ev:health:01JB8Z5000000000000000HA01"
+        ]
+      },
+      "sampled": {
+        "status": "pass",
+        "evidence": [
+          "ev:coverage:01JB8Z1000000000000000CV02",
+          "ev:span:4bf92f3577b34da6a3ce929d0e0e4736/c1b2c3d4e5f60718"
+        ],
+        "note": "parent_based_ratio 1.0 and parent span sampled"
+      },
+      "exporter_healthy": {
+        "status": "pass",
+        "evidence": [
+          "ev:health:01JB8Z5000000000000000HA01"
+        ]
+      },
+      "no_drops": {
+        "status": "pass",
+        "evidence": [
+          "ev:health:01JB8Z5000000000000000HA01"
+        ]
+      },
+      "collector_healthy": {
+        "status": "not_applicable",
+        "note": "probe exports directly to Code Doctor ingest"
+      },
+      "ingest_complete": {
+        "status": "pass",
+        "evidence": [
+          "ev:health:01JB8Z5000000000000000HG01"
+        ]
+      },
+      "context_propagated": {
+        "status": "pass",
+        "evidence": [
+          "ev:span:4bf92f3577b34da6a3ce929d0e0e4736/d1b2c3d4e5f60718"
+        ],
+        "note": "handler span present in same trace"
+      },
+      "window_elapsed": {
+        "status": "not_applicable"
+      },
+      "clock_skew_bounded": {
+        "status": "pass"
+      }
+    },
+    "explanation": "No INSERT into orders in trace 4bf92f35..., and every telemetry loss path was ruled out.",
+    "assessed_at": "2026-10-24T09:10:08Z",
+    "assessor": "trace.gap/0.1.0"
+  }
+}

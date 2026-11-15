@@ -1,0 +1,19 @@
+{
+  "description": "Staleness must say what changed.",
+  "schema": "claim/status-event.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "required",
+    "message_contains": "detail"
+  },
+  "instance": {
+    "cd_schema": "cd.claim.status-event/0",
+    "claim_id": "clm_01JB8Z8000000000000000CM01",
+    "from": "supported",
+    "to": "needs_revalidation",
+    "at": "2026-10-25T08:00:00Z",
+    "by": "system",
+    "rule": "stale_code",
+    "basis": {}
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "description": "A note without sources cannot be checked against the original.",
+  "schema": "memory/note.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "minItems",
+    "path": "/sources"
+  },
+  "instance": {
+    "cd_schema": "cd.memory.note/0",
+    "id": "mem_01JB8ZA000000000000000NT01",
+    "scope": "project",
+    "owner": "doctor",
+    "kind": "fact",
+    "text": "ShopService.buy (server/shop.py:47-49) returns early when inventory_version differs; orders is not written.",
+    "entities": [
+      "ent:symbol:shop-api:server/shop.py#ShopService.buy",
+      "ent:table:main:orders"
+    ],
+    "evidence": [
+      "ev:gap:01JB8Z6000000000000000GP01"
+    ],
+    "claims": [
+      "clm_01JB8Z8000000000000000CM01"
+    ],
+    "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8",
+    "task_id": "task_01JB8Z2000000000000000TK01",
+    "sources": [],
+    "created_at": "2026-10-24T11:04:00Z",
+    "pinned": true
+  }
+}

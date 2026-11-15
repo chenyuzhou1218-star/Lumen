@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/evidence/predicate.schema.json",
+  "title": "Evidence predicate v0",
+  "description": "A small, machine-checkable statement about ONE evidence item ('this span has cd.ui.settle.result = no_change', 'this log range contains ECONNRESET', 'this test failed'). The validator evaluates it against the stored bytes. It proves the evidence shows what the claim says it shows. It does NOT prove the claim's conclusion - causal conclusions need reproduction (claim level 'reproduced').",
+  "type": "object",
+  "required": ["op"],
+  "oneOf": [
+    {
+      "title": "exists",
+      "properties": { "op": { "const": "exists" } },
+      "additionalProperties": false
+    },
+    {
+      "title": "attr_equals (span)",
+      "required": ["attr", "value"],
+      "properties": {
+        "op": { "const": "attr_equals" },
+        "attr": { "type": "string", "pattern": "^[a-z0-9_][a-z0-9_.\\-]{0,254}$" },
+        "value": { "type": ["string", "number", "boolean"] }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "attr_in (span)",
+      "required": ["attr", "values"],
+      "properties": {
+        "op": { "const": "attr_in" },
+        "attr": { "type": "string", "pattern": "^[a-z0-9_][a-z0-9_.\\-]{0,254}$" },
+        "values": { "type": "array", "minItems": 1, "items": { "type": ["string", "number", "boolean"] } }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "attr_absent (span)",
+      "required": ["attr"],
+      "properties": {
+        "op": { "const": "attr_absent" },
+        "attr": { "type": "string", "pattern": "^[a-z0-9_][a-z0-9_.\\-]{0,254}$" }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "status_is (span)",
+      "required": ["code"],
+      "properties": {
+        "op": { "const": "status_is" },
+        "code": { "enum": ["unset", "ok", "error"] }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "duration_ms (span)",
+      "required": ["cmp", "ms"],
+      "properties": {
+        "op": { "const": "duration_ms" },
+        "cmp": { "enum": ["gt", "gte", "lt", "lte"] },
+        "ms": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "field_equals (JSON records: action, gap, corr, health, coverage, db)",
+      "required": ["pointer", "value"],
+      "properties": {
+        "op": { "const": "field_equals" },
+        "pointer": { "type": "string", "pattern": "^(/([^/~]|~[01])*)*$" },
+        "value": {}
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "text_contains (log, code, blob text)",
+      "required": ["text"],
+      "properties": {
+        "op": { "const": "text_contains" },
+        "text": { "type": "string", "minLength": 1, "maxLength": 2048 }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "text_matches (log, code, blob text)",
+      "description": "RE2-compatible regex only (no backreferences/lookaround), so evaluation is linear-time and cannot be used to hang the validator.",
+      "required": ["regex"],
+      "properties": {
+        "op": { "const": "text_matches" },
+        "regex": { "type": "string", "minLength": 1, "maxLength": 1024 }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "test_outcome (test)",
+      "required": ["outcome"],
+      "properties": {
+        "op": { "const": "test_outcome" },
+        "outcome": { "enum": ["passed", "failed", "error", "skipped"] }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "gap_verdict (gap)",
+      "required": ["verdict"],
+      "properties": {
+        "op": { "const": "gap_verdict" },
+        "verdict": { "enum": ["present", "confirmed_absent", "not_instrumented", "telemetry_degraded", "unknown"] }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

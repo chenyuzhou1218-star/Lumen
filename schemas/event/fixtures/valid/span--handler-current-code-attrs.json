@@ -1,0 +1,42 @@
+{
+  "description": "Uses code.file.path / code.function.name / code.line.number; legacy names were mapped at ingest.",
+  "schema": "event/span.schema.json",
+  "expect": "valid",
+  "instance": {
+    "cd_schema": "cd.event.span/0",
+    "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+    "span_id": "d1b2c3d4e5f60718",
+    "parent_span_id": "c1b2c3d4e5f60718",
+    "name": "ShopService.buy",
+    "cd_kind": "handler",
+    "otel_kind": "internal",
+    "start_time_unix_nano": "1761300000012000000",
+    "end_time_unix_nano": "1761300000165000000",
+    "status": {
+      "code": "unset"
+    },
+    "service": {
+      "name": "shop-api",
+      "instance_id": "api-1",
+      "version": "0.4.2",
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+    },
+    "probe_id": "prb_01JB8Z0000000000000000APYX",
+    "attributes": {
+      "cd.action.id": "01JB8Z4K3M5N6P7Q8R9S0T1V2W",
+      "code.function.name": "ShopService.buy",
+      "code.file.path": "server/shop.py",
+      "code.line.number": 42,
+      "cd.compat.legacy_code_attrs": true
+    },
+    "events": [
+      {
+        "name": "early_return",
+        "time_unix_nano": "1761300000060000000",
+        "attributes": {
+          "reason": "inventory_version_mismatch"
+        }
+      }
+    ]
+  }
+}

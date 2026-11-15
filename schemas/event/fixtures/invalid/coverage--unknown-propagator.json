@@ -1,0 +1,51 @@
+{
+  "description": "Propagator names are a closed set.",
+  "schema": "event/coverage.schema.json",
+  "expect": "invalid",
+  "expect_error": {
+    "validator": "pattern",
+    "path": "/propagators/0"
+  },
+  "instance": {
+    "cd_schema": "cd.event.coverage/0",
+    "id": "ev:coverage:01JB8Z1000000000000000CV01",
+    "probe_id": "prb_01JB8Z0000000000000000BRWS",
+    "declared_at": "2026-10-24T09:00:00Z",
+    "service": {
+      "name": "shop-web",
+      "code_version": "9fceb02d0ae598e95dc970b74767f19372d61af8"
+    },
+    "sdk": {
+      "name": "codedoctor-js-browser",
+      "version": "0.1.0",
+      "language": "typescript"
+    },
+    "layers": [
+      "ui",
+      "http_client",
+      "ws"
+    ],
+    "scope": {
+      "mode": "all"
+    },
+    "sampling": {
+      "strategy": "always_on",
+      "records_decisions": true
+    },
+    "export": {
+      "exporter": "otlp_http",
+      "max_queue_size": 2048,
+      "scheduled_delay_ms": 500,
+      "max_export_batch_size": 256,
+      "flush_on_shutdown": true
+    },
+    "heartbeat_interval_ms": 5000,
+    "propagators": [
+      "b3-magic"
+    ],
+    "redaction": {
+      "policy_id": "default/0",
+      "captures_bodies": false
+    }
+  }
+}

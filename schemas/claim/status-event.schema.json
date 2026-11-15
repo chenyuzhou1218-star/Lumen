@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code-doctor.local/schemas/v0/claim/status-event.schema.json",
+  "title": "Claim status change v0",
+  "description": "Every change of a claim's status, with who made it and on what basis. Promotion to 'supported' is made by the system's rule engine, never by the claim's author, and must cite the validation and the independent review it relied on.",
+  "type": "object",
+  "required": ["cd_schema", "claim_id", "from", "to", "at", "by", "rule", "basis"],
+  "properties": {
+    "cd_schema": { "const": "cd.claim.status-event/0" },
+    "claim_id": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" },
+    "from": { "enum": ["proposed", "supported", "refuted", "needs_revalidation", "superseded", "withdrawn"] },
+    "to": { "enum": ["proposed", "supported", "refuted", "needs_revalidation", "superseded", "withdrawn"] },
+    "at": { "$ref": "../common/defs.schema.json#/$defs/timestamp" },
+    "by": {
+      "description": "'system' for rule-engine transitions; the author for 'withdrawn'.",
+      "$ref": "../agent/defs.schema.json#/$defs/participant"
+    },
+    "rule": {
+      "enum": ["promote_supported", "refute_counterexample", "refute_contradicted", "stale_code", "stale_version", "superseded_by", "withdrawn_by_author"]
+    },
+    "basis": {
+      "type": "object",
+      "properties": {
+        "validation": { "type": "string", "pattern": "^val_[0-9A-HJKMNP-TV-Z]{26}$" },
+        "reviews": { "type": "array", "items": { "$ref": "../agent/defs.schema.json#/$defs/reviewId" } },
+        "evidence": { "type": "array", "items": { "$ref": "../evidence/evidence-id.schema.json" } },
+        "superseded_by": { "type": "string", "pattern": "^clm_[0-9A-HJKMNP-TV-Z]{26}$" },
+        "detail": { "type": "string", "maxLength": 4000 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "Promotion cites the accepted validation and at least one independent re-check.",
+      "if": { "properties": { "rule": { "const": "promote_supported" } } },
+      "then": {
+        "properties": {
+          "to": { "const": "supported" },
+          "by": { "const": "system" },
+          "basis": { "required": ["validation", "reviews"], "properties": { "reviews": { "minItems": 1 } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "rule": { "const": "refute_counterexample" } } },
+      "then": {
+        "properties": {
+          "to": { "const": "refuted" },
+          "basis": { "required": ["reviews", "evidence"], "properties": { "reviews": { "minItems": 1 }, "evidence": { "minItems": 1 } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "rule": { "enum": ["stale_code", "stale_version"] } } },
+      "then": { "properties": { "to": { "const": "needs_revalidation" }, "by": { "const": "system" }, "basis": { "required": ["detail"] } } }
+    },
+    {
+      "if": { "properties": { "rule": { "const": "withdrawn_by_author" } } },
+      "then": { "properties": { "to": { "const": "withdrawn" } } }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "quiet_room",
+  "script": "song.py",
+  "seed": 7,
+  "max_seconds": 1800
+}
