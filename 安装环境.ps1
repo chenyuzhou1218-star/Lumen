@@ -5,13 +5,21 @@
 # 需要先装好 Python 3.12（python.org 默认位置即可）；Node.js 18 以上只在重新打包界面时需要。
 # Steps / 做的事:
 #   1. .venv with Lumen itself (requirements-dev.txt) / 在本文件夹建 .venv，装上 Lumen 本体
-#   2. Libraries for the tools in tools\ (CodeCut, CodePage ...) and pypdf for CodePDF / 配套工具要的库，CodePDF 的 pypdf
+#   2. Libraries for the tools in tools\ (CodeCut, CodePage ...), into the same .venv, and pypdf for CodePDF / 配套工具要的库（也装进这个 .venv），CodePDF 的 pypdf
 #   3. Rebuild the interface when Node.js is installed (a built one is included) / 装了 Node 时重新打包界面（已附带打包好的）
 $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $here
 
 function Say($en, $zh, $colour = 'Gray') { Write-Host "$en / $zh" -ForegroundColor $colour }
+
+# A program run here that fails stops setup, saying which step (PowerShell does not stop by itself when one exits with an error)
+function Stop-IfFailed($en, $zh) {
+    if ($LASTEXITCODE -ne 0) {
+        Say "Failed: $en (exit code $LASTEXITCODE). Fix what is shown above, then run this again." "失败：$zh（退出码 $LASTEXITCODE）。按上面显示的原因解决后，再运行一次本脚本。" 'Red'
+        exit 1
+    }
+}
 
 function Find-Python312 {
     $local = Join-Path $env:LOCALAPPDATA 'Programs\Python\Python312\python.exe'
@@ -30,14 +38,19 @@ Write-Host "Python: $py"
 if (-not (Test-Path '.venv\Scripts\python.exe')) {
     Say '1/3 Creating .venv ...' '1/3 建 .venv ……'
     & $py -m venv .venv
+    Stop-IfFailed 'creating .venv' '建 .venv'
 }
 Say '1/3 Installing Lumen ...' '1/3 装 Lumen 本体 ……'
 & .venv\Scripts\python.exe -m pip install --upgrade pip
 & .venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+Stop-IfFailed 'installing Lumen' '装 Lumen 本体'
 
 Say '2/3 Installing what the tools need ...' '2/3 装配套工具需要的库 ……'
-& $py -m pip install -r tools\codecut\requirements.txt
-& $py -m pip install --target tools\codepdf\libs -r tools\codepdf\requirements.txt
+# into Lumen's own .venv too: the tools run with it (codedoctor/video.py python()), and the user's Python is left alone
+& .venv\Scripts\python.exe -m pip install -r tools\codecut\requirements.txt
+Stop-IfFailed 'installing what the tools need' '装配套工具需要的库'
+& .venv\Scripts\python.exe -m pip install --target tools\codepdf\libs -r tools\codepdf\requirements.txt
+Stop-IfFailed 'installing what CodePDF needs' '装 CodePDF 需要的库'
 
 $npm = Get-Command npm -ErrorAction SilentlyContinue
 if ($npm) {
@@ -45,6 +58,7 @@ if ($npm) {
     Push-Location web
     & npm install
     & npm run build
+    if ($LASTEXITCODE -ne 0) { Say 'The interface could not be rebuilt: the one already built is used.' '界面没能重新打包：用已经打包好的那份。' 'Yellow' }
     Pop-Location
 } else {
     Say '3/3 No Node.js: using the interface already built.' '3/3 没有装 Node.js：用已经打包好的界面。'

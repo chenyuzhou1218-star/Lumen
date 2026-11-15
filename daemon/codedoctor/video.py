@@ -80,10 +80,20 @@ def open_window(folder) -> bool:
 
 
 def python() -> str:
-    """CodeCut's interpreter: $CODECUT_PYTHON, else the Python its launcher (codecut.cmd) uses, else this one."""
+    """The tools' interpreter: $CODECUT_PYTHON; else Lumen's own (its .venv), when setup.ps1 put the tools' libraries there
+    - a fresh install keeps everything in Lumen's folder; else the Python CodeCut's launcher uses (older installs, where the
+    tools' libraries went into the user's Python 3.12); else this one.
+
+    A clean install from GitHub (2026-11-15) showed why: pip refused to write into the user's Python and setup went on, so
+    on a new computer CodeCut would have had nothing to run with."""
     env = os.environ.get("CODECUT_PYTHON")
     if env:
         return env
+    import importlib.util
+
+    own = Path(sys.executable).with_name("python.exe")  # Lumen runs as pythonw.exe; its console twin sits beside it
+    if own.is_file() and importlib.util.find_spec("playwright") is not None:  # the one tools library Lumen itself lacks
+        return str(own)
     local = Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Python" / "Python312" / "python.exe"
     if local.is_file():
         return str(local)
