@@ -251,9 +251,15 @@ def _needs_admin(output: str) -> bool:
 
 def run_as_admin(command: str, cwd: str, timeout: float = 300) -> tuple[int, str]:
     """The command again in an administrator PowerShell: Windows asks the user first (UAC). (exit code, output)."""
+    import shutil
     import tempfile
+    import uuid
 
-    work = Path(tempfile.mkdtemp(prefix="lumen-admin-"))
+    # A folder that takes the temp folder's own permissions (the user may read what is in it), not mkdtemp's: its folder
+    # is for its owner only, and the log the administrator's PowerShell wrote there is owned by Administrators - the user's
+    # Lumen could not read what the command printed (the user's UAC test, 2026-11-15: "ran as administrator", and nothing).
+    work = Path(tempfile.gettempdir()) / f"lumen-admin-{uuid.uuid4().hex[:10]}"
+    work.mkdir()
     script, log = work / "run.ps1", work / "out.txt"
     body = (f"Set-Location -LiteralPath '{cwd.replace(chr(39), chr(39) * 2)}'\n"
             f"$code = 0\ntry {{ & {{ {command} }} *>&1 | Out-File -LiteralPath '{log}' -Encoding utf8; $code = $LASTEXITCODE }}\n"
@@ -270,8 +276,11 @@ def run_as_admin(command: str, cwd: str, timeout: float = 300) -> tuple[int, str
     said = proc.stdout.decode("utf-8", errors="replace")
     try:
         said = log.read_text(encoding="utf-8-sig", errors="replace") + said
-    except OSError:
+    except FileNotFoundError:
         pass
+    except OSError as e:  # never silently: a run whose output cannot be read is said to be so
+        said = f"(what the command printed could not be read: {e})\n" + said
+    shutil.rmtree(work, ignore_errors=True)
     if proc.returncode == 1223:
         return 1223, "Windows asked for administrator rights and the user said no. " + said
     return proc.returncode, "(ran as administrator)\n" + said
