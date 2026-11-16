@@ -71,6 +71,11 @@ tests, then the changes; `codedoctor show`, `codedoctor undo`, and `codedoctor s
 chat, the question panel, parallel chats, memory, approvals, tools picked by themselves, CodeCut, Code3D, CodePDF, the seven
 languages.
 
+### License
+
+[MIT](LICENSE): free to use, change, share and sell, keeping the copyright notice. ffmpeg (in `tools/codecut/tools`) and the
+Python and JavaScript libraries Lumen installs come under their own licenses.
+
 ---
 
 ## 中文
@@ -114,3 +119,7 @@ powershell -ExecutionPolicy Bypass -File .\安装环境.ps1
 ### 测试
 
 `tests/daemon` 是单元测试；`tools/flow_check.py` 在临时数据目录里用真模型跑一遍主流程：聊天、提问面板、并行对话、记忆、批准方式、自动选工具、CodeCut、Code3D、CodePDF、7 种语言。
+
+### 许可证
+
+[MIT](LICENSE)：可以免费使用、修改、分享和商用，只要保留版权声明。ffmpeg（在 `tools/codecut/tools` 里）以及 Lumen 安装的 Python、JavaScript 库，各自遵循它们自己的许可证。
