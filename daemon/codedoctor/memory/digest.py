@@ -404,8 +404,11 @@ async def ask_model(services, choice: dict, prompt: str, timeout_s: float = 420)
     """One question, one answer, no tools: with Claude Code, Codex or a chat API, whichever the user chose."""
     from codedoctor import engines
 
-    cwd = Path(services.config.data_dir)
-    cwd.mkdir(parents=True, exist_ok=True)
+    data = Path(services.config.data_dir)  # Lumen's own files for this project: the scratch answer file of Codex
+    data.mkdir(parents=True, exist_ok=True)
+    # it runs in the project folder: run in the data folder, a memory wrote that folder down as the project's
+    # "working folder" (C:\Users\...\lumen-...\projects\..., seen in the introduction film's capture, 2026-11-16)
+    cwd = Path(services.config.root) if Path(services.config.root).is_dir() else data
     if choice.get("engine") == "claude_code":
         from codedoctor import claude_code
 
@@ -421,7 +424,7 @@ async def ask_model(services, choice: dict, prompt: str, timeout_s: float = 420)
         exe = codex.executable()
         if exe is None:
             return ""
-        out = cwd / f".digest-{os.getpid()}-{time.monotonic_ns()}.txt"
+        out = data / f".digest-{os.getpid()}-{time.monotonic_ns()}.txt"  # never into the user's project
         argv = [*exe, "exec", "--skip-git-repo-check", "--ephemeral", "--color", "never", "-C", str(cwd), "--sandbox", "read-only",
                 "-c", 'approval_policy="never"', "-c", 'web_search="disabled"', "-o", str(out),
                 *(["-m", choice["model"]] if choice.get("model") else []), "-"]
