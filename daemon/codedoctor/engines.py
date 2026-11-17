@@ -185,6 +185,10 @@ async def start(argv: list[str], prompt: str | None, cwd, extra_env: dict | None
         stderr=asyncio.subprocess.PIPE, limit=16 * 1024 * 1024, env=env(**(extra_env or {})),
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), start_new_session=os.name != "nt")
     _live.add(proc)
+    if os.name == "nt":  # ends with Lumen, even when Lumen cannot close it (killed, crashed): desktop/job.py
+        from codedoctor.desktop import job
+
+        job.adopt_pid(proc.pid)
     if prompt is not None:
         proc.stdin.write(prompt.encode("utf-8"))  # on stdin: the instructions may be longer than a command line may be
         await proc.stdin.drain()

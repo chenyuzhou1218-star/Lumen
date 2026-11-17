@@ -62,3 +62,26 @@ def adopt(proc) -> bool:
         return bool(k32.AssignProcessToJobObject(handle, int(proc._handle)))
     except (AttributeError, OSError):
         return False
+
+
+def adopt_pid(pid: int) -> bool:
+    """The same for a process known by its id (asyncio's subprocesses do not show their handle): the AI engines
+    (codedoctor/engines.py start). What they start - Claude Code's MCP bridge, Codex's own codex.exe - joins with them.
+
+    Found 2026-11-16: a Lumen ended from outside left its Claude Code processes and their bridges running."""
+    job = _the_job()
+    if job is None or not pid:
+        return False
+    import ctypes
+    from ctypes import wintypes
+
+    k32, handle = job
+    k32.OpenProcess.restype = wintypes.HANDLE
+    k32.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+    proc = k32.OpenProcess(0x0100 | 0x0001, False, int(pid))  # PROCESS_SET_QUOTA | PROCESS_TERMINATE
+    if not proc:
+        return False
+    try:
+        return bool(k32.AssignProcessToJobObject(handle, proc))
+    finally:
+        k32.CloseHandle(proc)

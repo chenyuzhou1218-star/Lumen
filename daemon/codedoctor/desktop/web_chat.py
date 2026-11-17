@@ -103,7 +103,11 @@ def _who(daemon, row: dict) -> str:
     if body.get("engine"):
         from codedoctor import engines
 
-        return engines.label(body)
+        label = engines.label(body)
+        effort = engines.effort_name(body["engine"], body.get("engine_effort"))
+        # Claude Code's levels have Chinese names (中等 ...): in the window's language, the model's own name left as it is
+        # (the English window showed "Claude Code · Haiku 5.5 · 中等", 2026-11-16)
+        return label[: -len(effort)] + _t(effort) if effort and label.endswith(effort) else label
     if body.get("model"):
         return body["model"]["model"]
     agent = daemon.s.config.agents.get(row["agent"])
