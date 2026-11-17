@@ -24,8 +24,8 @@ right member, picks the right tool by itself, and you watch it work on the right
   rather than cut. You can read, edit and clear it in Settings → Long-term memory.
 - **An equal, not a servant.** It tells you plainly when you are wrong, and keeps a right answer under pressure; once a
   decision is yours to make, it carries it out.
-- **Your approval, your choice.** Full access (never asks) · Review for me (asks only before deleting files and before using
-  the mouse and keyboard) · Ask me everything. No other limits: every folder and drive is open, and Windows asks you itself
+- **Your approval, your choice.** Fully open (never asks) · Review for me (asks only before deleting files and before using
+  the mouse and keyboard) · Ask me for everything. No other limits: every folder and drive is open, and Windows asks you itself
   when administrator rights are needed.
 - **Many things at once.** Several conversations run side by side; a question waiting in one never holds up another.
 - **Seven languages**: English, Français, Español, Deutsch, Italiano, Português, 简体中文 - the tools' windows too.

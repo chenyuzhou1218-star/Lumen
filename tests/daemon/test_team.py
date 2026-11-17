@@ -289,7 +289,8 @@ def test_a_member_on_claude_code_has_only_its_own_tools(make_config, tmp_path):
     assert "Bash" in tools and "Read" in tools and "Edit" not in tools and "--strict-mcp-config" in out
     assert not {"ListAgents", "SendMessage", "PowerShell", "Task", "Agent"} & set(tools)
     text = team.engine_prompt("torch", "shop", sorted(cfg.agents), ("python -m unittest",))
-    assert "python -m unittest" in text and "STATUS: DONE" in text
+    # the user's rule (2026-11-14): no allowlist, and no limits told to the AI - an old list in the configuration is not read out
+    assert "python -m unittest" not in text and "allowed" not in text.lower() and "STATUS: DONE" in text
     shown = claude_code.step("mcp__codedoctor__ask_team", {"jobs": [{"member": "spark", "task": "写\n代码"},
                                                                     {"member": "torch", "task": "跑"}]}, tmp_path)
     assert shown == {"tool": "ask_team", "description": "Spark、Torch：写"}

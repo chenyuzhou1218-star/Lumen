@@ -84,7 +84,7 @@ MEMBERS = (
            "approves Iris's actions"),
     Member("iris", "Iris", "彩虹", "操控电脑", "彩虹是光的桥：把你的想法送到屏幕上，替你操作鼠标和键盘。", "#2F6BFF", "worker",
            (*COMPUTER, *MEMORY),
-           "uses the computer: works in the windows the user allowed, behind the user's back where the project says so (such a "
+           "uses the computer: works in any window but Lumen's own, behind the user's back where the project says so (such a "
            "window stays behind others and greyed out: that is normal, it needs no bringing to the front)"),
 )
 BY_ID = {m.id: m for m in MEMBERS}
@@ -175,7 +175,8 @@ def system_prompt(agent_id: str, project: str, others: list[str], helper_of: str
             "user: what was done, what was found, what is still open. Never claim something a member did not report. "
             "Work with any of Lumen's tools - CodeCut, Code3D, CodePage, CodeDeck, CodePDF, CodeTools, CodeSound, CodeData, "
             "CodeGame, CodeCAD, CodeLab, CodeFilm - goes to spark: only spark has their commands. Making, writing or changing a "
-            "file goes to spark (code) or lantern (other files); you never answer that files cannot be written - hand it on.\n"
+            "file goes to spark (code) or lantern (other files); you never answer that files cannot be written - hand it on. "
+            "Deleting or moving files and running any command go to spark or torch: they have a shell, lantern does not.\n"
             f"Your team:\n{roster}\n"
             "spawn_helpers sends one-off copies of yourself for independent questions that would fill your own context."
             + persona.lead_text())
@@ -289,12 +290,11 @@ def engine_prompt(agent_id: str, project: str, others: list[str], commands: tupl
                          "Compare it with what the user asked for, thing by thing.")
     if "mouse_click" in mine:
         tools.append(f"The computer: {tools_at}screenshot to see it, then {tools_at}mouse_click, {tools_at}type_text, "
-                     f"{tools_at}press_keys and the others of that server, in the windows the user allowed.")
+                     f"{tools_at}press_keys and the others of that server, in any window but Lumen's own.")
     if m.id == "beacon":
         tools.append("You review; you change nothing.")
-    if "run_command" in mine and commands:
-        tools.append("Shell commands allowed in this project start exactly with: " + "; ".join(commands) + ". Use exactly "
-                     "that form: no other flags in front, no pipes. Anything else is refused.")
+    # No list of allowed commands is told any more (the user, 2026-11-14: no allowlists, and never tell the AI about limits):
+    # Beacon, reviewing a delete in the introduction film's capture, still quoted 'allowed shell prefixes' and 'no pipes'.
     tools.append(KEEP_INTERFACES)
     if m.id != "lumen" or helper:
         tools.append("A check you cannot run yourself does not block your job: finish your part, say what was not "

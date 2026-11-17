@@ -23,11 +23,11 @@ Choose the approval mode for this conversation below the input box. It decides w
 
 | Approval mode | When it asks you |
 |---|---|
-| Full access | Never asks; just does it |
+| Fully open | Never asks; just does it |
 | Review for me | Only before deleting files, and before operating the mouse or keyboard |
-| Ask me everything | Before every action that changes anything |
+| Ask me for everything | Before every action that changes anything |
 
-When it needs to ask, a small card appears above the input box in the bottom right. It has one line describing the action, next to **Agree** and **Disagree**. Clicking Disagree skips only that one action; everything else continues as normal. Beyond this, Lumen has no other permission limits: every folder and drive on your computer is available to it.
+When it needs to ask, a small card appears above the input box in the bottom right. It has one line describing the action, next to **Allow** and **Don't allow**. Clicking Don't allow skips only that one action; everything else continues as normal. Beyond this, Lumen has no other permission limits: every folder and drive on your computer is available to it.
 
 ## 4. The Lumen team
 
